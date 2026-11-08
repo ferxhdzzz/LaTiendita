@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="LaTiendita.Application/LaTiendita.Application.csproj" />
+    <Project Path="LaTiendita.Domain/LaTiendita.Domain.csproj" />
+    <Project Path="LaTiendita.Infrastructure/LaTiendita.Infrastructure.csproj" />
+    <Project Path="LaTiendita.Web/LaTiendita.Web.csproj" />
+  </Folder>
+</Solution>

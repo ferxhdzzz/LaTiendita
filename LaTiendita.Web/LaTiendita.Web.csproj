@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\Compra\" />
+    <Folder Include="Views\Reporte\" />
+    <Folder Include="Views\Venta\" />
+    <Folder Include="Views\Producto\" />
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LaTiendita.Application\LaTiendita.Application.csproj" />
+    <ProjectReference Include="..\LaTiendita.Infrastructure\LaTiendita.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
