@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LaTiendita.Application.Entities
+﻿
+namespace LaTiendita.Domain.Entities
 {
-    internal class Categoria
+    public class Categoria
     {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string? Descripcion { get; set; }
+
+        public ICollection<Producto> Productos { get; set; } = new List<Producto>();
     }
 }

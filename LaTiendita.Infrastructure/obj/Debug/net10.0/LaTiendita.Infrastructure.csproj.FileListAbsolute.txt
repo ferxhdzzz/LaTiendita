@@ -1,0 +1,16 @@
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\bin\Debug\net10.0\LaTiendita.Infrastructure.deps.json
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\bin\Debug\net10.0\LaTiendita.Infrastructure.dll
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\bin\Debug\net10.0\LaTiendita.Infrastructure.pdb
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\bin\Debug\net10.0\LaTiendita.Domain.dll
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\bin\Debug\net10.0\LaTiendita.Domain.pdb
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendita.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendita.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendita.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendita.Infrastructure.AssemblyInfo.cs
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendita.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendita.Infrastructure.sourcelink.json
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendi.F0589DC1.Up2Date
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendita.Infrastructure.dll
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\refint\LaTiendita.Infrastructure.dll
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\LaTiendita.Infrastructure.pdb
+C:\Users\hp\Desktop\LaTiendita\LaTiendita.Infrastructure\obj\Debug\net10.0\ref\LaTiendita.Infrastructure.dll

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj": {}
+    "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj": {
+    "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj",
         "projectName": "LaTiendita.Domain",
-        "projectPath": "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj",
+        "projectPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj",
         "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Domain\\obj\\",
+        "outputPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -341,14 +341,14 @@
         }
       }
     },
-    "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj": {
+    "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
         "projectName": "LaTiendita.Infrastructure",
-        "projectPath": "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
+        "projectPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -366,8 +366,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj": {
-                "projectPath": "C:\\Users\\hp\\Desktop\\La Tiendita\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj"
+              "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj": {
+                "projectPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj"
               }
             }
           }
@@ -388,6 +388,12 @@
         "net10.0": {
           "framework": "net10.0",
           "targetAlias": "net10.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[10.0.14, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

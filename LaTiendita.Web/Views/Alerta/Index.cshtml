@@ -1,0 +1,93 @@
+﻿@model IEnumerable<LaTiendita.Domain.Entities.Producto>
+@{
+    ViewData["Title"] = "Alertas de Stock";
+    int agotados = Model.Count(p => p.Stock == 0);
+    int porAgotarse = Model.Count(p => p.Stock > 0);
+}
+
+<style>
+    .alert-card {
+        background: var(--surface); border: 1.5px dashed var(--border);
+        border-radius: var(--radius-m); padding: 22px; position: relative;
+        transition: transform 0.15s, border-color 0.15s;
+    }
+    .alert-card.critico { border-color: var(--danger); background: #FFFBFB; }
+    .alert-card.aviso { border-color: var(--warning); background: #FFFCF7; }
+</style>
+
+<div style="max-width: 1050px; margin: 0 auto;">
+
+    <!-- Encabezado -->
+    <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 2rem;">Alertas de inventario</h1>
+        <p style="color: var(--ink-soft); margin-top: 4px;">Productos en o por debajo de su stock mínimo requerido</p>
+    </div>
+
+    <!-- Resumen de Alertas -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px;">
+        <div class="card-box" style="padding: 18px; border-top: 4px solid var(--danger);">
+            <div style="font-size: 0.85rem; color: var(--ink-soft);">Agotados (Stock 0)</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--danger); margin-top: 4px;">@agotados</div>
+        </div>
+
+        <div class="card-box" style="padding: 18px; border-top: 4px solid var(--warning);">
+            <div style="font-size: 0.85rem; color: var(--ink-soft);">Por agotarse</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-top: 4px;">@porAgotarse</div>
+        </div>
+
+        <div class="card-box" style="padding: 18px; border-top: 4px solid var(--ink);">
+            <div style="font-size: 0.85rem; color: var(--ink-soft);">Total de alertas activas</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--ink); margin-top: 4px;">@Model.Count()</div>
+        </div>
+    </div>
+
+    <!-- Cuadrícula de Tarjetas de Alerta -->
+    @if (!Model.Any())
+    {
+        <div class="card-box" style="text-align: center; padding: 50px 20px;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">✅</div>
+            <h3 style="color: var(--success); margin-bottom: 6px;">¡Todo el inventario está en óptimas condiciones!</h3>
+            <p style="color: var(--ink-soft); font-size: 0.95rem;">No hay productos con existencias por debajo de su nivel mínimo.</p>
+        </div>
+    }
+    else
+    {
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+            @foreach (var p in Model)
+            {
+                bool esAgotado = p.Stock == 0;
+                string claseCard = esAgotado ? "critico" : "aviso";
+                string textoBadge = esAgotado ? "● AGOTADO CRÍTICO" : "▲ STOCK BAJO";
+                string colorBadge = esAgotado ? "var(--danger)" : "var(--warning)";
+                string fondoBadge = esAgotado ? "var(--danger-bg)" : "var(--warning-bg)";
+
+                <div class="alert-card @claseCard">
+                    <span style="background: @fondoBadge; color: @colorBadge; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 12px;">
+                        @textoBadge
+                    </span>
+
+                    <h3 style="font-size: 1.15rem; margin-bottom: 4px;">@p.Nombre</h3>
+                    <div style="font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 16px;">
+                        Categoría: @(p.Categoria?.Nombre ?? "General") · Código: P-@p.Id.ToString("D4")
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--ink-faint);">Existencia actual</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: @colorBadge; font-family: var(--font-display);">@p.Stock unid.</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.75rem; color: var(--ink-faint);">Mínimo requerido</div>
+                            <div style="font-size: 1.1rem; font-weight: 600; color: var(--ink);">@p.StockMinimo unid.</div>
+                        </div>
+                    </div>
+
+                    <a href="/Compra" class="btn-primary-custom" style="display: block; text-align: center; text-decoration: none; padding: 9px; font-size: 0.88rem; background: var(--ink);">
+                        + Reabastecer en Compras
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
+</div>

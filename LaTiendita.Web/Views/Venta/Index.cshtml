@@ -1,0 +1,421 @@
+﻿@model IEnumerable<LaTiendita.Domain.Entities.Venta>
+@{
+    ViewData["Title"] = "Ventas";
+    var productos = ViewBag.Productos as IEnumerable<LaTiendita.Domain.Entities.Producto> ?? new List<LaTiendita.Domain.Entities.Producto>();
+}
+
+<style>
+    .pos-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    .product-item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background 0.15s;
+        border-radius: var(--radius-s);
+    }
+    .product-item-row:hover { background: var(--surface-2); }
+    .product-item-row:last-child { border-bottom: none; }
+
+    .ticket-item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .qty-btn {
+        width: 28px;
+        height: 28px;
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: var(--radius-s);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1rem;
+        color: var(--ink);
+    }
+    .qty-btn:hover { background: var(--surface-2); }
+
+    .trash-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 4px 6px;
+        border-radius: 4px;
+        transition: transform 0.15s, opacity 0.15s;
+        opacity: 0.65;
+    }
+    .trash-btn:hover {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+</style>
+
+<div style="max-width: 1100px; margin: 0 auto;">
+
+    <!-- Encabezado -->
+    <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 2rem; margin: 0 0 6px 0;">Nueva venta</h1>
+        <p style="color: var(--ink-soft); margin: 0;">Cada venta registrada descuenta automáticamente la existencia en el inventario.</p>
+    </div>
+
+    <!-- DOS COLUMNAS: Catálogo (Izq) y Ticket (Der) -->
+    <div class="pos-grid">
+
+        <!-- Columna Izquierda: Productos Disponibles -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h3 style="font-size: 1.15rem; margin: 0 0 14px 0; font-weight: 600;">Productos disponibles</h3>
+            
+            <input type="text" id="buscadorProd" placeholder="Buscar por nombre o código..." 
+                   class="form-control-custom" style="margin-bottom: 16px;" oninput="filtrarProductos()" />
+
+            <div id="listaProductos" style="max-height: 380px; overflow-y: auto;">
+                @if (!productos.Any())
+                {
+                    <div style="text-align: center; color: var(--ink-faint); padding: 30px;">
+                        No hay productos registrados en el inventario.
+                    </div>
+                }
+                @foreach (var p in productos)
+                {
+                    var precioInvariante = p.Precio.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                    <div class="product-item-row prod-card" 
+                         data-id="@p.Id" 
+                         data-nombre="@p.Nombre" 
+                         data-codigo="P-@p.Id.ToString("D4")"
+                         data-precio="@precioInvariante" 
+                         data-stock="@p.Stock"
+                         onclick="agregarAlTicket(@p.Id, '@p.Nombre', @precioInvariante, @p.Stock)">
+                        <div>
+                            <div style="font-weight: 500; font-size: 0.95rem; color: var(--ink);">@p.Nombre</div>
+                            <div style="font-size: 0.78rem; color: var(--ink-faint); margin-top: 2px;">
+                                P-@p.Id.ToString("D4") · <span style="color: @(p.Stock <= p.StockMinimo ? "var(--warning)" : "var(--ink-soft)");">Disponibles: @p.Stock</span>
+                            </div>
+                        </div>
+                        <div style="font-weight: 600; font-size: 1rem; color: var(--ink);">
+                            $@p.Precio.ToString("N2")
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Ticket / Carrito -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 22px; display: flex; flex-direction: column; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h3 style="font-size: 1.15rem; margin: 0 0 14px 0; font-weight: 600;">Ticket</h3>
+
+            <!-- Contenedor dinámico de renglones del ticket -->
+            <div id="ticketItems" style="flex: 1; max-height: 330px; overflow-y: auto;">
+                <div style="text-align: center; color: var(--ink-faint); padding: 40px 0;">
+                    El ticket está vacío.<br />Selecciona productos a la izquierda para agregarlos.
+                </div>
+            </div>
+
+            <!-- Total y Botones de Acción -->
+            <div style="border-top: 2px solid var(--border); margin-top: 16px; padding-top: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+                    <span style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 600;">Total</span>
+                    <span id="ticketTotal" style="font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--ink);">$0.00</span>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" id="btnCobrar" class="btn btn-primary" style="flex: 2; padding: 12px; font-size: 1rem;" onclick="cobrarTicket()" disabled>
+                        Cobrar $0.00
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1; padding: 12px; background: #fff; border: 1px solid var(--border);" onclick="vaciarTicket()">
+                        Vaciar ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SECCIÓN INFERIOR: Tabla de Ventas Recientes -->
+    <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-top: 36px; margin-bottom: 40px;">
+        <div style="padding: 18px 24px; border-bottom: 1px solid var(--border); background: #ffffff;">
+            <h2 style="font-size: 1.2rem; margin: 0; font-weight: 600; color: var(--ink);">Ventas recientes</h2>
+        </div>
+
+        <table class="table-custom" style="width: 100%; border-collapse: collapse; background: #ffffff;">
+            <thead>
+                <tr style="background: var(--surface-accent); text-align: left;">
+                    <th style="padding: 14px 20px;">Folio</th>
+                    <th style="padding: 14px 20px;">Fecha</th>
+                    <th style="padding: 14px 20px;">Productos</th>
+                    <th style="padding: 14px 20px;">Atendió</th>
+                    <th style="padding: 14px 20px; text-align: right;">Total</th>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <th style="padding: 14px 20px; text-align: right;">Utilidad</th>
+                    }
+                </tr>
+            </thead>
+            <tbody style="background: #ffffff;">
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--ink-faint); padding: 32px; background: #ffffff;">
+                            No hay ventas registradas aún.
+                        </td>
+                    </tr>
+                }
+                @foreach (var v in Model)
+                {
+                    var utilidad = v.Detalles.Sum(d => (d.PrecioUnitario - d.CostoUnitario) * d.Cantidad);
+                    <tr style="border-bottom: 1px solid var(--border); background: #ffffff;">
+                        <td style="padding: 14px 20px; font-weight: 600; color: var(--ink);">
+                            V-@v.Id.ToString("D4")
+                        </td>
+                        <td style="padding: 14px 20px; color: var(--ink-soft); font-size: 0.9rem;">
+                            @v.Fecha.ToLocalTime().ToString("dd-MMM, h:mm tt")
+                        </td>
+                        <td style="padding: 14px 20px; font-size: 0.88rem; color: var(--ink-soft); max-width: 320px;">
+                            @string.Join(", ", v.Detalles.Select(d => $"{d.Cantidad}x {d.Producto?.Nombre}"))
+                        </td>
+                        <td style="padding: 14px 20px;">
+                            @(v.Empleado?.Nombre ?? "Cajero")
+                        </td>
+                        <td style="padding: 14px 20px; text-align: right; font-weight: 700; color: var(--ink);">
+                            @v.Total.ToString("C2")
+                        </td>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <td style="padding: 14px 20px; text-align: right; font-weight: 600;">
+                                @if (utilidad > 0)
+                                {
+                                    <span style="color: var(--success);">+@utilidad.ToString("C2")</span>
+                                }
+                                else if (utilidad < 0)
+                                {
+                                    <span style="color: var(--danger); font-size: 0.88rem;">
+                                        -@Math.Abs(utilidad).ToString("C2")
+                                        <span style="font-size: 0.72rem; background: var(--danger-bg); color: var(--danger); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Pérdida</span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--ink-faint);">$0.00</span>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- JAVASCRIPT DEL TICKET POS -->
+<script>
+    let ticket = [];
+
+    function agregarAlTicket(id, nombre, precio, stockMax) {
+        if (stockMax <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin existencias',
+                text: `El producto "${nombre}" está agotado.`,
+                confirmButtonColor: '#1F3A2E'
+            });
+            return;
+        }
+
+        const itemExistente = ticket.find(x => x.id === id);
+        if (itemExistente) {
+            if (itemExistente.cantidad + 1 > stockMax) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Límite de stock',
+                    text: `Solo hay ${stockMax} unidades disponibles de "${nombre}".`,
+                    confirmButtonColor: '#1F3A2E'
+                });
+                return;
+            }
+            itemExistente.cantidad++;
+        } else {
+            ticket.push({
+                id: id,
+                nombre: nombre,
+                precio: parseFloat(precio),
+                stockMax: stockMax,
+                cantidad: 1
+            });
+        }
+        renderizarTicket();
+    }
+
+    function cambiarCantidad(id, delta) {
+        const item = ticket.find(x => x.id === id);
+        if (!item) return;
+
+        if (delta > 0 && item.cantidad + delta > item.stockMax) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Límite de stock',
+                text: `Solo hay ${item.stockMax} unidades disponibles en inventario.`,
+                confirmButtonColor: '#1F3A2E'
+            });
+            return;
+        }
+
+        item.cantidad += delta;
+        if (item.cantidad <= 0) {
+            eliminarDelTicket(id);
+            return;
+        }
+        renderizarTicket();
+    }
+
+    function eliminarDelTicket(id) {
+        ticket = ticket.filter(x => x.id !== id);
+        renderizarTicket();
+    }
+
+    function renderizarTicket() {
+        const contenedor = document.getElementById('ticketItems');
+        const totalEl = document.getElementById('ticketTotal');
+        const btnCobrar = document.getElementById('btnCobrar');
+
+        if (ticket.length === 0) {
+            contenedor.innerHTML = `
+                <div style="text-align: center; color: var(--ink-faint); padding: 40px 0;">
+                    El ticket está vacío.<br />Selecciona productos a la izquierda para agregarlos.
+                </div>
+            `;
+            totalEl.innerText = '$0.00';
+            btnCobrar.innerText = 'Cobrar $0.00';
+            btnCobrar.disabled = true;
+            btnCobrar.style.opacity = '0.5';
+            return;
+        }
+
+        let html = '';
+        let total = 0;
+
+        ticket.forEach(item => {
+            const subtotal = item.precio * item.cantidad;
+            total += subtotal;
+
+            html += `
+                <div class="ticket-item-row">
+                    <div>
+                        <div style="font-weight: 500; font-size: 0.95rem; color: var(--ink);">${item.nombre}</div>
+                        <div style="font-size: 0.8rem; color: var(--ink-soft);">$${item.precio.toFixed(2)} c/u</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button type="button" class="qty-btn" onclick="cambiarCantidad(${item.id}, 1)">+</button>
+                        <span style="min-width: 20px; text-align: center; font-weight: 600;">${item.cantidad}</span>
+                        <button type="button" class="qty-btn" onclick="cambiarCantidad(${item.id}, -1)">-</button>
+                        <span style="font-weight: 600; margin-left: 6px; min-width: 50px; text-align: right;">$${subtotal.toFixed(2)}</span>
+                        
+                        <!-- BOTÓN BOTE DE BASURA PARA BORRAR EL PRODUCTO -->
+                        <button type="button" class="trash-btn" onclick="eliminarDelTicket(${item.id})" title="Quitar este producto">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        contenedor.innerHTML = html;
+        totalEl.innerText = `$${total.toFixed(2)}`;
+        btnCobrar.innerText = `Cobrar $${total.toFixed(2)}`;
+        btnCobrar.disabled = false;
+        btnCobrar.style.opacity = '1';
+    }
+
+    function vaciarTicket() {
+        ticket = [];
+        renderizarTicket();
+    }
+
+    function cobrarTicket() {
+        if (ticket.length === 0) return;
+
+        Swal.fire({
+            title: '¿Confirmar cobro?',
+            text: `Se cobrarán ${document.getElementById('ticketTotal').innerText} y se descontará el inventario en automático.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#1F3A2E',
+            cancelButtonColor: '#52655A',
+            confirmButtonText: 'Sí, cobrar venta',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const payload = {
+                    Items: ticket.map(x => ({
+                        ProductoId: x.id,
+                        Cantidad: x.cantidad,
+                        PrecioUnitario: x.precio
+                    }))
+                };
+
+                fetch('/Venta/RegistrarVentaJson', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.exito) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Venta Realizada!',
+                            text: data.mensaje,
+                            confirmButtonColor: '#1F3A2E'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error en la venta',
+                            text: data.mensaje,
+                            confirmButtonColor: '#A8432B'
+                        });
+                    }
+                })
+                .catch(err => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de conexión',
+                        text: 'No se pudo comunicar con el servidor.',
+                        confirmButtonColor: '#A8432B'
+                    });
+                });
+            }
+        });
+    }
+
+    function filtrarProductos() {
+        const query = document.getElementById('buscadorProd').value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.prod-card');
+
+        cards.forEach(card => {
+            const nombre = card.getAttribute('data-nombre').toLowerCase();
+            const codigo = card.getAttribute('data-codigo').toLowerCase();
+            if (nombre.includes(query) || codigo.includes(query)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    renderizarTicket();
+</script>

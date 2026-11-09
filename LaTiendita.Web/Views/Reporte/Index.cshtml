@@ -1,0 +1,236 @@
+﻿@model LaTiendita.Application.DTOs.ReporteKpisDto
+@{
+    ViewData["Title"] = "Reportes y Estadísticas";
+    var rango = ViewBag.Rango as string ?? "hoy";
+    var ventas = ViewBag.VentasRecientes as IEnumerable<LaTiendita.Domain.Entities.Venta> ?? new List<LaTiendita.Domain.Entities.Venta>();
+    var maxUnidades = Model.TopProductos.Any() ? Model.TopProductos.Max(p => p.CantidadVendida) : 1;
+    if (maxUnidades == 0) maxUnidades = 1;
+
+    var margenPorcentaje = Model.TotalVentas > 0 ? (Model.UtilidadTotal / Model.TotalVentas * 100) : 0;
+    var ticketPromedio = Model.TotalTransacciones > 0 ? (Model.TotalVentas / Model.TotalTransacciones) : 0;
+}
+
+<div style="max-width: 1080px; margin: 0 auto;">
+
+    <!-- Encabezado con selector de rango de fechas -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1 style="font-size: 2rem; margin: 0 0 6px 0;">Reportes y Estadísticas</h1>
+            <p style="color: var(--ink-soft); margin: 0;">Métricas de rendimiento financiero, rotación y rentabilidad del negocio.</p>
+        </div>
+
+        <!-- Botones de Segmento de Tiempo -->
+        <div style="display: inline-flex; background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 4px; gap: 4px;">
+            <a href="/Reporte?rango=hoy" 
+               style="padding: 7px 16px; border-radius: 6px; text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; @(rango == "hoy" ? "background: var(--ink); color: #ffffff;" : "color: var(--ink);")">
+               Hoy
+            </a>
+            <a href="/Reporte?rango=semana" 
+               style="padding: 7px 16px; border-radius: 6px; text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; @(rango == "semana" ? "background: var(--ink); color: #ffffff;" : "color: var(--ink);")">
+               Esta semana
+            </a>
+            <a href="/Reporte?rango=mes" 
+               style="padding: 7px 16px; border-radius: 6px; text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; @(rango == "mes" ? "background: var(--ink); color: #ffffff;" : "color: var(--ink);")">
+               Este mes
+            </a>
+            <a href="/Reporte?rango=todo" 
+               style="padding: 7px 16px; border-radius: 6px; text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; @(rango == "todo" ? "background: var(--ink); color: #ffffff;" : "color: var(--ink);")">
+               Todo el historial
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 Tarjetas de Métricas (KPIs) con Fondo Blanco -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px;">
+        
+        <!-- KPI 1: Ventas Totales -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <div style="font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Ventas Totales</div>
+            <div style="font-family: var(--font-display); font-size: 1.85rem; font-weight: 700; color: var(--ink); margin: 8px 0 4px 0;">
+                @Model.TotalVentas.ToString("C2")
+            </div>
+            <div style="font-size: 0.82rem; color: var(--ink-faint);">Ingresos brutos cobrados en caja</div>
+        </div>
+
+        <!-- KPI 2: Utilidad Neta -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <div style="font-size: 0.82rem; color: @(Model.UtilidadTotal >= 0 ? "var(--success)" : "var(--danger)"); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                @(Model.UtilidadTotal >= 0 ? "Utilidad Neta (Ganancia)" : "Resultado Neto (Pérdida)")
+            </div>
+            <div style="font-family: var(--font-display); font-size: 1.85rem; font-weight: 700; color: @(Model.UtilidadTotal >= 0 ? "var(--success)" : "var(--danger)"); margin: 8px 0 4px 0;">
+                @(Model.UtilidadTotal >= 0 ? "+" + Model.UtilidadTotal.ToString("C2") : "-" + Math.Abs(Model.UtilidadTotal).ToString("C2"))
+            </div>
+            <div style="font-size: 0.82rem; color: var(--ink-faint);">
+                @(Model.UtilidadTotal >= 0 ? "Ganancia limpia (Venta - Costo)" : "El costo superó al precio de venta")
+            </div>
+        </div>
+
+        <!-- KPI 3: Transacciones -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <div style="font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Transacciones</div>
+            <div style="font-family: var(--font-display); font-size: 1.85rem; font-weight: 700; color: var(--ink); margin: 8px 0 4px 0;">
+                @Model.TotalTransacciones
+            </div>
+            <div style="font-size: 0.82rem; color: var(--ink-faint);">Tickets emitidos</div>
+        </div>
+
+        <!-- KPI 4: Stock Bajo -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <div style="font-size: 0.82rem; color: @(Model.ProductosStockBajo > 0 ? "var(--danger)" : "var(--ink-soft)"); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                Alertas de Stock
+            </div>
+            <div style="font-family: var(--font-display); font-size: 1.85rem; font-weight: 700; color: @(Model.ProductosStockBajo > 0 ? "var(--danger)" : "var(--ink)"); margin: 8px 0 4px 0;">
+                @Model.ProductosStockBajo
+            </div>
+            <div style="font-size: 0.82rem; color: var(--ink-faint);">
+                <a href="/Alerta" style="color: inherit; text-decoration: underline;">Ver productos a resurtir</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN INTERMEDIA: Top Productos y Rentabilidad -->
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-bottom: 28px; align-items: start;">
+        
+        <!-- Tarjeta 1: Top 5 Productos Más Vendidos -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.2rem; margin: 0; font-weight: 600;">Top Productos Más Vendidos</h2>
+                <span style="font-size: 0.8rem; background: var(--surface-accent); color: var(--ink); padding: 4px 8px; border-radius: 6px;">Por volumen</span>
+            </div>
+
+            @if (!Model.TopProductos.Any())
+            {
+                <div style="text-align: center; color: var(--ink-faint); padding: 30px;">
+                    No hay productos vendidos en el rango seleccionado.
+                </div>
+            }
+            else
+            {
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    @foreach (var prod in Model.TopProductos)
+                    {
+                        var pct = (prod.CantidadVendida * 100) / maxUnidades;
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.92rem; margin-bottom: 6px;">
+                                <span style="font-weight: 500; color: var(--ink);">@prod.NombreProducto</span>
+                                <div>
+                                    <strong style="color: var(--ink);">@prod.CantidadVendida uds</strong>
+                                    <span style="color: var(--ink-faint); margin-left: 8px;">(@prod.TotalRecaudado.ToString("C2"))</span>
+                                </div>
+                            </div>
+                            <div style="height: 8px; background: var(--surface-accent); border-radius: 999px; overflow: hidden;">
+                                <div style="height: 100%; width: @pct%; background: var(--ink); border-radius: 999px;"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Tarjeta 2: Resumen de Rentabilidad -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h2 style="font-size: 1.2rem; margin: 0 0 20px 0; font-weight: 600;">Rentabilidad del Negocio</h2>
+
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+                <div style="padding: 14px; background: var(--surface-accent); border-radius: 8px;">
+                    <div style="font-size: 0.82rem; color: var(--ink-soft);">Margen de Ganancia Promedio</div>
+                    <div style="font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: @(margenPorcentaje >= 0 ? "var(--ink)" : "var(--danger)"); margin-top: 4px;">
+                        @(margenPorcentaje >= 0 ? margenPorcentaje.ToString("N1") + "%" : "-" + Math.Abs(margenPorcentaje).ToString("N1") + "% (Pérdida)")
+                    </div>
+                </div>
+
+                <div style="padding: 14px; background: var(--surface-accent); border-radius: 8px;">
+                    <div style="font-size: 0.82rem; color: var(--ink-soft);">Ticket Promedio por Venta</div>
+                    <div style="font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--ink); margin-top: 4px;">
+                        @ticketPromedio.ToString("C2")
+                    </div>
+                </div>
+
+                <div style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; border-top: 1px solid var(--border); padding-top: 14px;">
+                    @if (margenPorcentaje < 0)
+                    {
+                        <span style="color: var(--danger); font-weight: 500;">
+                            ⚠️ <strong>Atención:</strong> El margen es negativo porque algunos productos se vendieron a un precio menor a su costo registrado. Al vender por encima del costo, el margen volverá a ser verde.
+                        </span>
+                    }
+                    else
+                    {
+                        <span>
+                            💡 <em>La utilidad neta calcula en tiempo real la ganancia limpia descontando el costo unitario de cada producto vendido.</em>
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SECCIÓN INFERIOR: Tabla de Ventas Recientes -->
+    <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 40px;">
+        <div style="padding: 18px 24px; border-bottom: 1px solid var(--border); background: #ffffff;">
+            <h2 style="font-size: 1.2rem; margin: 0; font-weight: 600; color: var(--ink);">Detalle de Ventas (@rango)</h2>
+        </div>
+
+        <table class="table-custom" style="width: 100%; border-collapse: collapse; background: #ffffff;">
+            <thead>
+                <tr style="background: var(--surface-accent); text-align: left;">
+                    <th style="padding: 14px 20px;">Folio</th>
+                    <th style="padding: 14px 20px;">Fecha y Hora</th>
+                    <th style="padding: 14px 20px;">Atendió</th>
+                    <th style="padding: 14px 20px;">Productos</th>
+                    <th style="padding: 14px 20px; text-align: right;">Utilidad</th>
+                    <th style="padding: 14px 20px; text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody style="background: #ffffff;">
+                @if (!ventas.Any())
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--ink-faint); padding: 32px; background: #ffffff;">
+                            No hay transacciones registradas en este período.
+                        </td>
+                    </tr>
+                }
+                @foreach (var v in ventas)
+                {
+                    var utilidadVenta = v.Detalles.Sum(d => (d.PrecioUnitario - d.CostoUnitario) * d.Cantidad);
+                    <tr style="border-bottom: 1px solid var(--border); background: #ffffff;">
+                        <td style="padding: 14px 20px; font-weight: 600; color: var(--ink);">
+                            V-@v.Id.ToString("D4")
+                        </td>
+                        <td style="padding: 14px 20px; color: var(--ink-soft); font-size: 0.9rem;">
+                            @v.Fecha.ToLocalTime().ToString("dd MMM, hh:mm tt")
+                        </td>
+                        <td style="padding: 14px 20px;">
+                            @(v.Empleado?.Nombre ?? "Cajero")
+                        </td>
+                        <td style="padding: 14px 20px; font-size: 0.88rem; color: var(--ink-soft); max-width: 320px;">
+                            @string.Join(", ", v.Detalles.Select(d => $"{d.Cantidad}x {d.Producto?.Nombre}"))
+                        </td>
+                        <td style="padding: 14px 20px; text-align: right; font-weight: 600;">
+                            @if (utilidadVenta > 0)
+                            {
+                                <span style="color: var(--success);">+@utilidadVenta.ToString("C2")</span>
+                            }
+                            else if (utilidadVenta < 0)
+                            {
+                                <span style="color: var(--danger); font-size: 0.88rem;">
+                                    -@Math.Abs(utilidadVenta).ToString("C2")
+                                    <span style="font-size: 0.72rem; background: var(--danger-bg); color: var(--danger); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Pérdida</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="color: var(--ink-faint);">$0.00</span>
+                            }
+                        </td>
+                        <td style="padding: 14px 20px; text-align: right; font-weight: 700; color: var(--ink); font-size: 1.05rem;">
+                            @v.Total.ToString("C2")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>

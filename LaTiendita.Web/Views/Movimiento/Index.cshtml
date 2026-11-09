@@ -1,0 +1,108 @@
+﻿@model IEnumerable<LaTiendita.Domain.Entities.Movimiento>
+@using LaTiendita.Domain.Enums
+@{
+    ViewData["Title"] = "Movimientos";
+}
+
+<style>
+    .badge-mov {
+        padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .badge-entrada { background: #E4EFE3; color: #3C6E47; border: 1px solid #c8e1c6; }
+    .badge-salida { background: #F7ECD8; color: #B4791E; border: 1px solid #eed6b0; }
+    .badge-ajuste { background: #EDEFE6; color: #52655A; border: 1px solid #d4d8c8; }
+</style>
+
+<div style="max-width: 1050px; margin: 0 auto;">
+
+    <!-- Encabezado -->
+    <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 2rem;">Movimientos</h1>
+        <p style="color: var(--ink-soft); margin-top: 4px;">Kardex y auditoría de entradas y salidas de mercancía</p>
+    </div>
+
+    <!-- Barra de Filtros LINQ -->
+    <div class="card-box" style="padding: 18px 24px; margin-bottom: 24px;">
+        <form method="get" style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+            <input type="text" name="buscar" value="@ViewBag.Buscar" placeholder="Buscar por producto..." 
+                   class="form-control-custom" style="flex: 2; min-width: 220px;" />
+
+            <select name="tipo" class="form-control-custom" style="flex: 1; min-width: 180px;">
+                <!option value="" @(ViewBag.TipoSeleccionado == null ? "selected" : "")>Todos los movimientos</!option>
+                <!option value="@TipoMovimiento.Entrada" @(ViewBag.TipoSeleccionado == TipoMovimiento.Entrada ? "selected" : "")>Entradas (Compras)</!option>
+                <!option value="@TipoMovimiento.Salida" @(ViewBag.TipoSeleccionado == TipoMovimiento.Salida ? "selected" : "")>Salidas (Ventas)</!option>
+            </select>
+
+            <button type="submit" class="btn-primary-custom" style="padding: 10px 20px; background: var(--ink);">
+                Filtrar
+            </button>
+            @if (ViewBag.TipoSeleccionado != null || !string.IsNullOrEmpty(ViewBag.Buscar))
+            {
+                <a href="/Movimiento" class="btn-cancel-custom" style="padding: 10px 16px;">Limpiar</a>
+            }
+        </form>
+    </div>
+
+    <!-- Tabla Kardex -->
+    <div class="card-box" style="padding: 0; overflow: hidden; border-radius: var(--radius-m);">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Tipo</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Motivo</th>
+                    <th>Responsable</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--ink-faint); padding: 40px;">
+                            No hay movimientos registrados en el período seleccionado.
+                        </td>
+                    </tr>
+                }
+                @foreach (var m in Model)
+                {
+                    string claseBadge = m.Tipo switch
+                    {
+                        TipoMovimiento.Entrada => "badge-entrada",
+                        TipoMovimiento.Salida => "badge-salida",
+                        _ => "badge-ajuste"
+                    };
+                    string signo = m.Tipo == TipoMovimiento.Entrada ? "+" : "-";
+                    string colorCant = m.Tipo == TipoMovimiento.Entrada ? "var(--success)" : "var(--warning)";
+
+                    <tr>
+                        <td style="color: var(--ink-soft); font-size: 0.85rem;">
+                            @m.Fecha.ToLocalTime().ToString("dd-MMM-yyyy, h:mm tt")
+                        </td>
+                        <td>
+                            <span class="badge-mov @claseBadge">
+                                @(m.Tipo == TipoMovimiento.Entrada ? "↓ Entrada" : "↑ Salida")
+                            </span>
+                        </td>
+                        <td style="font-weight: 600;">
+                            @(m.Producto?.Nombre ?? "Producto dado de baja")
+                        </td>
+                        <td style="font-weight: 700; color: @colorCant;">
+                            @signo@m.Cantidad unid.
+                        </td>
+                        <td style="color: var(--ink-soft); font-size: 0.88rem;">
+                            @m.Motivo
+                        </td>
+                        <td>
+                            <span style="background: var(--surface-2); padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border);">
+                                👤 @(m.Empleado?.Nombre ?? "Sistema")
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>

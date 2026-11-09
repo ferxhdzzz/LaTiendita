@@ -1,10 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+using LaTiendita.Domain.Entities;
 
 namespace LaTiendita.Domain.Interfaces
 {
-    internal class IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
+        IProductoRepository Productos { get; }
+        IVentaRepository Ventas { get; }
+        IRepository<Empleado> Empleados { get; }
+        IRepository<Categoria> Categorias { get; }
+        IRepository<Proveedor> Proveedores { get; }
+        IRepository<Compra> Compras { get; }
+        IRepository<Movimiento> Movimientos { get; }
+
+        Task<int> SaveChangesAsync();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }

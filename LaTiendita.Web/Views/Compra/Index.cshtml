@@ -1,0 +1,366 @@
+﻿@model IEnumerable<LaTiendita.Domain.Entities.Compra>
+@{
+    ViewData["Title"] = "Compras";
+    var productos = ViewBag.Productos as IEnumerable<LaTiendita.Domain.Entities.Producto> ?? new List<LaTiendita.Domain.Entities.Producto>();
+    var proveedores = ViewBag.Proveedores as IEnumerable<LaTiendita.Domain.Entities.Proveedor> ?? new List<LaTiendita.Domain.Entities.Proveedor>();
+}
+
+<style>
+    .compra-grid {
+        display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; margin-bottom: 32px;
+    }
+    .btn-quitar {
+        background: none; border: 1px solid var(--border); color: #1F3A2E;
+        padding: 4px 12px; border-radius: var(--radius-s); font-size: 0.82rem; font-weight: 600; cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+    }
+    .btn-quitar:hover { 
+        background: #E4EFE3; color: #1F3A2E; border-color: #3C6E47;
+    }
+</style>
+
+<div style="max-width: 1100px; margin: 0 auto;">
+
+    <!-- DOS COLUMNAS SUPERIORES -->
+    <div class="compra-grid">
+
+        <!-- Columna Izquierda: Formulario de Mercancía Recibida -->
+        <div class="card-box" style="padding: 24px;">
+            <h3 style="font-size: 1.25rem; margin-bottom: 18px;">Mercancía recibida</h3>
+
+            <!-- Distribuidor -->
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label>Distribuidor</label>
+                <select id="compraProveedor" class="form-control-custom">
+                    <option value="">Selecciona un proveedor...</option>
+                    @foreach (var prov in proveedores)
+                    {
+                        <option value="@prov.Id">@prov.Nombre</option>
+                    }
+                </select>
+                <a href="/Proveedor" style="font-size: 0.78rem; color: var(--ink-soft); text-decoration: underline; display: inline-block; margin-top: 4px;">
+                    ¿No está en la lista? Agregar proveedor
+                </a>
+            </div>
+
+            <!-- Producto -->
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label>Producto</label>
+                <select id="compraProducto" class="form-control-custom" onchange="autoCompletarCosto()">
+                    <option value="">Selecciona un producto...</option>
+                    @foreach (var p in productos)
+                    {
+                        <!option value="@p.Id" data-costo="@p.Costo" data-stock="@p.Stock" data-nombre="@p.Nombre">
+                            P-@p.Id.ToString("D4") · @p.Nombre (hay @p.Stock)
+                        </!option>
+                    }
+                </select>
+            </div>
+
+            <!-- Cantidad y Costo -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div class="form-group">
+                    <label>Cantidad recibida *</label>
+                    <input type="number" id="compraCantidad" class="form-control-custom" value="12" min="1" step="1" />
+                </div>
+                <div class="form-group">
+                    <label>Costo unitario (US$) *</label>
+                    <input type="number" id="compraCosto" class="form-control-custom" placeholder="0.00" min="0.01" step="0.01" />
+                </div>
+            </div>
+
+            <!-- Fecha de vencimiento (Con validación contra fechas pasadas) -->
+            <div class="form-group" style="margin-bottom: 22px;">
+                <label>Fecha de vencimiento del lote</label>
+                <input type="date" id="compraVence" class="form-control-custom" />
+                <span style="font-size: 0.75rem; color: var(--ink-faint); margin-top: 4px; display: block;">
+                    Opcional. Déjala vacía si el producto no vence (pilas, fósforos...)
+                </span>
+            </div>
+
+            <button type="button" class="btn-cancel-custom" style="padding: 10px 18px; font-weight: 500;" onclick="agregarAlDetalle()">
+                Agregar a Compra
+            </button>
+        </div>
+
+        <!-- Columna Derecha: Detalle de Compra -->
+        <div class="card-box" style="padding: 24px; display: flex; flex-direction: column;">
+            <h3 style="font-size: 1.25rem; margin-bottom: 16px;">Detalle de compra</h3>
+
+            <div style="flex: 1; max-height: 290px; overflow-y: auto; margin-bottom: 16px;">
+                <table class="table-custom" style="font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cant.</th>
+                            <th>Vence</th>
+                            <th>Subtotal</th>
+                            <th style="text-align: right;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyDetalle">
+                        <tr id="filaVacia">
+                            <td colspan="5" style="text-align: center; color: var(--ink-faint); padding: 40px 0;">
+                                No hay productos en la orden.<br />Agrégalos desde el panel izquierdo.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total y Botón Registrar -->
+            <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+                    <span style="font-size: 1.1rem; color: var(--ink-soft);">Total de la compra</span>
+                    <span id="compraTotal" style="font-size: 2rem; font-weight: 700; color: var(--ink); font-family: var(--font-display);">$0.00</span>
+                </div>
+
+                <button type="button" id="btnRegistrarCompra" class="btn-primary-custom" 
+                        style="width: 100%; padding: 12px; font-size: 1rem; background: #1F3A2E; color: #fff;" 
+                        onclick="confirmarYRegistrarCompra()">
+                    Registrar compra
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TABLA INFERIOR: Historial de Compras -->
+    <div class="card-box" style="padding: 0; overflow: hidden; border-radius: var(--radius-m);">
+        <h3 style="padding: 20px 24px; font-size: 1.2rem; margin: 0; border-bottom: 1px solid var(--border);">
+            Historial de compras
+        </h3>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Fecha</th>
+                    <th>Proveedores</th>
+                    <th>Productos</th>
+                    <th>Recibió</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--ink-faint); padding: 40px;">
+                            No hay compras registradas aún.
+                        </td>
+                    </tr>
+                }
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td style="color: var(--ink-soft); font-size: 0.85rem; font-weight: 500;">C-@c.Id.ToString("D4")</td>
+                        <td style="color: var(--ink-soft); font-size: 0.85rem;">@c.Fecha.ToLocalTime().ToString("dd-MMM, h:mm tt")</td>
+                        <td>@(c.Proveedor?.Nombre ?? "Distribución directa")</td>
+                        <td>
+                            @if (c.Detalles != null && c.Detalles.Any())
+                            {
+                                @string.Join(", ", c.Detalles.Select(d => $"{d.Cantidad}x {d.Producto?.Nombre}"))
+                            }
+                            else
+                            {
+                                <span style="color: var(--ink-faint);">Sin productos registrados</span>
+                            }
+                        </td>
+                        <td>@(c.Empleado?.Nombre ?? "Admin")</td>
+                        <td style="font-weight: 700;">$@c.Total.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    let detalleCompra = [];
+
+    // Bloquear fechas pasadas en el calendario directamente
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputFecha = document.getElementById('compraVence');
+        const hoyIso = new Date().toISOString().split('T')[0];
+        inputFecha.setAttribute('min', hoyIso);
+    });
+
+    function autoCompletarCosto() {
+        const select = document.getElementById('compraProducto');
+        const selectedOption = select.options[select.selectedIndex];
+        const costo = selectedOption.getAttribute('data-costo');
+
+        if (costo && parseFloat(costo) > 0) {
+            document.getElementById('compraCosto').value = parseFloat(costo).toFixed(2);
+        } else {
+            document.getElementById('compraCosto').value = '';
+        }
+    }
+
+    function agregarAlDetalle() {
+        const selectProd = document.getElementById('compraProducto');
+        const prodId = parseInt(selectProd.value);
+        if (!prodId) {
+            Swal.fire({ icon: 'warning', title: 'Atención', text: 'Selecciona un producto para recibir.', confirmButtonColor: '#1F3A2E' });
+            return;
+        }
+
+        const selectedOption = selectProd.options[selectProd.selectedIndex];
+        const nombreProd = selectedOption.getAttribute('data-nombre');
+        const cantidad = parseInt(document.getElementById('compraCantidad').value) || 0;
+        const costo = parseFloat(document.getElementById('compraCosto').value) || 0;
+        const fechaVenceVal = document.getElementById('compraVence').value;
+
+        if (cantidad <= 0 || costo <= 0) {
+            Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'La cantidad y el costo deben ser mayores a cero.', confirmButtonColor: '#1F3A2E' });
+            return;
+        }
+
+        // VALIDACIÓN: La fecha de vencimiento no puede ser anterior a hoy
+        let venceTexto = 'No aplica';
+        if (fechaVenceVal) {
+            const fechaIngresada = new Date(fechaVenceVal + 'T00:00:00');
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0); // Inicio del día de hoy
+
+            if (fechaIngresada < hoy) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Fecha inválida',
+                    text: 'La fecha de vencimiento no puede ser anterior al día de hoy.',
+                    confirmButtonColor: '#1F3A2E'
+                });
+                return;
+            }
+
+            const d = fechaIngresada;
+            const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+            venceTexto = `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        detalleCompra.push({
+            productoId: prodId,
+            nombre: nombreProd,
+            cantidad: cantidad,
+            costo: costo,
+            vence: venceTexto,
+            subtotal: cantidad * costo
+        });
+
+        selectProd.value = '';
+        document.getElementById('compraCosto').value = '';
+        document.getElementById('compraVence').value = '';
+        document.getElementById('compraCantidad').value = '12';
+
+        renderizarDetalle();
+    }
+
+    function quitarItem(index) {
+        detalleCompra.splice(index, 1);
+        renderizarDetalle();
+    }
+
+    function renderizarDetalle() {
+        const tbody = document.getElementById('tbodyDetalle');
+        const totalEl = document.getElementById('compraTotal');
+        const btn = document.getElementById('btnRegistrarCompra');
+
+        if (detalleCompra.length === 0) {
+            tbody.innerHTML = '<tr id="filaVacia"><td colspan="5" style="text-align: center; color: var(--ink-faint); padding: 40px 0;">No hay productos en la orden.<br />Agrégalos desde el panel izquierdo.</td></tr>';
+            totalEl.innerText = '$0.00';
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            return;
+        }
+
+        let html = '';
+        let total = 0;
+
+        detalleCompra.forEach((item, index) => {
+            total += item.subtotal;
+            html += `
+                <tr>
+                    <td style="font-weight: 500;">${item.nombre}</td>
+                    <td>${item.cantidad}</td>
+                    <td style="color: var(--ink-soft);">${item.vence}</td>
+                    <td style="font-weight: 600;">$${item.subtotal.toFixed(2)}</td>
+                    <td style="text-align: right;">
+                        <button type="button" class="btn-quitar" onclick="quitarItem(${index})">Quitar</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+        totalEl.innerText = `$${total.toFixed(2)}`;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+
+    function confirmarYRegistrarCompra() {
+        if (detalleCompra.length === 0) return;
+
+        const provSelect = document.getElementById('compraProveedor');
+        const proveedorId = provSelect.value ? parseInt(provSelect.value) : null;
+
+        Swal.fire({
+            title: '¿Registrar entrada de mercancía?',
+            text: `Se ingresarán los productos al almacén sumando un total de ${document.getElementById('compraTotal').innerText}.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#1F3A2E',
+            cancelButtonColor: '#52655A',
+            confirmButtonText: 'Sí, registrar compra',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const payload = {
+                    ProveedorId: proveedorId,
+                    Items: detalleCompra.map(x => ({
+                        ProductoId: x.productoId,
+                        Cantidad: x.cantidad,
+                        CostoUnitario: x.costo
+                    }))
+                };
+
+                fetch('/Compra/RegistrarCompraJson', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.exito) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Compra Registrada!',
+                            text: data.mensaje,
+                            confirmButtonColor: '#1F3A2E'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.mensaje,
+                            confirmButtonColor: '#A8432B'
+                        });
+                    }
+                })
+                .catch(err => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de conexión',
+                        text: 'No se pudo comunicar con el servidor.',
+                        confirmButtonColor: '#A8432B'
+                    });
+                });
+            }
+        });
+    }
+
+    renderizarDetalle();
+</script>

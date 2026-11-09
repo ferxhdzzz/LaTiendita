@@ -1,50 +1,119 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - LaTiendita.Web</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/LaTiendita.Web.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">LaTiendita.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>@ViewData["Title"] - La Tiendita</title>
+		<link rel="stylesheet" href="~/css/site.css" />
+		<!-- SweetAlert2 CDN -->
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	</head>
+	<body>
+		<aside class="sidebar">
+			<div class="brand-logo">
+				<h2>La Tiendita</h2>
+				<p>¡Tu mejor opción!</p>
+			</div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - LaTiendita.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
+			<nav style="display: flex; flex-direction: column; gap: 4px;">
+				<a href="/" class="nav-link-custom"> Inicio</a>
+				<a href="/Venta" class="nav-link-custom"> Ventas</a>
+				<a href="/Compra" class="nav-link-custom"> Compras</a>
+				<a href="/Producto" class="nav-link-custom"> Productos</a>
+				<a href="/Categoria" class="nav-link-custom"> Categorías</a>
+				<a href="/Proveedor" class="nav-link-custom"> Proveedores</a>
+				<a href="/Movimiento" class="nav-link-custom"> Movimientos</a>
+				<a href="/Alerta" class="nav-link-custom"> Alertas</a>
+
+				@if (User.IsInRole("Administrador"))
+				{
+				<a href="/Reporte" class="nav-link-custom"> Reportes</a>
+				<a href="/Empleado" class="nav-link-custom"> Empleados</a>
+				}
+			</nav>
+
+			<div class="nav-bottom">
+				@if (User.Identity?.IsAuthenticated == true)
+				{
+				<form action="/Account/Logout" method="post" id="logoutForm">
+					@Html.AntiForgeryToken()
+					<button type="submit" class="nav-link-custom" style="width:100%; border:none; background:none; cursor:pointer;">
+						 Cerrar sesión
+					</button>
+				</form>
+				}
+				else
+				{
+				<a href="/Account/Login" class="nav-link-custom"> Iniciar sesión</a>
+				}
+			</div>
+		</aside>
+
+		<div class="main-wrapper">
+			<header class="topbar">
+				@if (User.Identity?.IsAuthenticated == true)
+				{
+				<div class="user-chip">
+					 <strong>@User.Identity.Name</strong>
+					<span style="font-size:0.75rem; color:var(--ink-soft); margin-left:4px;">
+						(@(User.IsInRole("Administrador") ? "Administrador" : "Empleado"))
+					</span>
+				</div>
+				}
+			</header>
+
+			<main class="content-area">
+				@RenderBody()
+			</main>
+		</div>
+
+		<!-- Scripts Globales de SweetAlert2 -->
+		<script>
+			function confirmarEliminacion(formId, elementoNombre) {
+			Swal.fire({
+			title: '¿Estás seguro?',
+			text: `Deseas eliminar "${elementoNombre}". Esta acción no se puede deshacer.`,
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#A8432B',
+			cancelButtonColor: '#52655A',
+			confirmButtonText: 'Sí, eliminar',
+			cancelButtonText: 'Cancelar'
+			}).then((result) => {
+			if (result.isConfirmed) {
+			document.getElementById(formId).submit();
+			}
+			});
+			}
+		</script>
+		@if (TempData["Exito"] != null)
+		{
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+			Swal.fire({
+			icon: 'success',
+			title: '¡Completado!',
+			text: '@Html.Raw(TempData["Exito"])',
+			confirmButtonColor: '#1F3A2E',
+			timer: 2800
+			});
+			});
+		</script>
+		}
+		@if (TempData["Error"] != null)
+		{
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+			Swal.fire({
+			icon: 'error',
+			title: 'Atención',
+			text: '@Html.Raw(TempData["Error"])',
+			confirmButtonColor: '#A8432B'
+			});
+			});
+		</script>
+		}
+
+		@await RenderSectionAsync("Scripts", required: false)
+	</body>
 </html>

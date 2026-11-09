@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using LaTiendita.Application.DTOs;
+using LaTiendita.Domain.Entities;
 
 namespace LaTiendita.Application.Interfaces
 {
-    internal class IVentaService
+    public interface IVentaService
     {
+        Task<IEnumerable<Venta>> GetAllAsync();
+        Task<Venta?> GetByIdAsync(int id);
+        Task<(bool Exito, string Mensaje)> RegistrarVentaAsync(VentaRegistroDto dto);
     }
 }

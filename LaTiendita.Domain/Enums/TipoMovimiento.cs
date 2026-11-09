@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace LaTiendita.Domain.Enums
 {
-    internal class TipoMovimiento
+    public enum TipoMovimiento
     {
+        Entrada = 1, // Por Compras
+        Salida = 2,  // Por Ventas
+        Ajuste = 3   // Por corrección manual de stock
     }
 }

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+using LaTiendita.Domain.Entities;
 
 namespace LaTiendita.Domain.Interfaces
 {
-    internal class IProductoRepository
+    public interface IProductoRepository : IRepository<Producto>
     {
+        Task<IEnumerable<Producto>> GetProductosConCategoriaAsync();
+        Task<IEnumerable<Producto>> GetProductosStockBajoAsync();
     }
 }

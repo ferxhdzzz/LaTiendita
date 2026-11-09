@@ -1,0 +1,113 @@
+﻿@model IEnumerable<LaTiendita.Domain.Entities.Categoria>
+@{
+    ViewData["Title"] = "Categorías";
+}
+
+<div style="max-width: 900px; margin: 0 auto;">
+    <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 2rem;">Categorías</h1>
+        <p style="color: var(--ink-soft); margin-top: 4px;">Clasificación de productos de la tienda</p>
+    </div>
+
+    <!-- Formulario para Crear o Editar Categoría -->
+    <div class="card-box" style="margin-bottom: 28px; padding: 22px;">
+        <h3 id="catTituloForm" style="font-size: 1.1rem; margin-bottom: 14px;">Nueva Categoría</h3>
+        
+        <form asp-action="Guardar" method="post" style="display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="catId" name="Id" value="0" />
+
+            <div class="form-group" style="flex: 1; min-width: 200px;">
+                <label>Nombre de la Categoría</label>
+                <input type="text" id="catNombre" name="Nombre" class="form-control-custom" placeholder="Ej. Lácteos" 
+                       minlength="3" maxlength="40" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ 0-9]+$" 
+                       title="Solo letras, números y espacios" required />
+            </div>
+
+            <div class="form-group" style="flex: 2; min-width: 250px;">
+                <label>Descripción (opcional)</label>
+                <input type="text" id="catDesc" name="Descripcion" class="form-control-custom" placeholder="Leches, quesos, yogures..." maxlength="120" />
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button type="button" id="btnCancelarEdicion" class="btn-cancel-custom" style="display: none; padding: 11px 16px;" onclick="cancelarEdicion()">
+                    Cancelar
+                </button>
+                <button type="submit" id="catBtnGuardar" class="btn-primary-custom" style="padding: 11px 24px; background: var(--ink);">
+                    Guardar Categoría
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla con Editar y SweetAlert2 -->
+    <div class="card-box" style="padding: 0; overflow: hidden; border-radius: var(--radius-m);">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--ink-faint); padding: 30px;">
+                            No hay categorías registradas aún.
+                        </td>
+                    </tr>
+                }
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td style="font-weight: 600;">@c.Nombre</td>
+                        <td style="color: var(--ink-soft);">@(c.Descripcion ?? "—")</td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 6px;">
+                                <!-- Botón Editar -->
+                                <button type="button" class="btn-action" 
+                                        onclick="editarCategoria(@c.Id, '@c.Nombre', '@(c.Descripcion ?? "")')">
+                                    Editar
+                                </button>
+
+                                <!-- Formulario oculto activado por SweetAlert2 -->
+                                <form id="form-del-cat-@c.Id" asp-action="Eliminar" method="post" style="display: none;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@c.Id" />
+                                </form>
+                                
+                                <button type="button" class="btn-action" style="color: var(--danger);" 
+                                        onclick="confirmarEliminacion('form-del-cat-@c.Id', '@c.Nombre')">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function editarCategoria(id, nombre, desc) {
+        document.getElementById('catTituloForm').innerText = 'Editar Categoría';
+        document.getElementById('catId').value = id;
+        document.getElementById('catNombre').value = nombre;
+        document.getElementById('catDesc').value = desc;
+        document.getElementById('catBtnGuardar').innerText = 'Actualizar Categoría';
+        document.getElementById('btnCancelarEdicion').style.display = 'inline-block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelarEdicion() {
+        document.getElementById('catTituloForm').innerText = 'Nueva Categoría';
+        document.getElementById('catId').value = '0';
+        document.getElementById('catNombre').value = '';
+        document.getElementById('catDesc').value = '';
+        document.getElementById('catBtnGuardar').innerText = 'Guardar Categoría';
+        document.getElementById('btnCancelarEdicion').style.display = 'none';
+    }
+</script>

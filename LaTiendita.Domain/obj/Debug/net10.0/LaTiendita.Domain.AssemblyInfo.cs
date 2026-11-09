@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LaTiendita.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eefefb40d7437ab04060c18e10afc2b392db890f")]
 [assembly: System.Reflection.AssemblyProductAttribute("LaTiendita.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LaTiendita.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

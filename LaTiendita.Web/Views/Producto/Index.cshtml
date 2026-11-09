@@ -1,0 +1,251 @@
+﻿@model IEnumerable<LaTiendita.Domain.Entities.Producto>
+@{
+    ViewData["Title"] = "Productos";
+    var categorias = ViewBag.Categorias as IEnumerable<LaTiendita.Domain.Entities.Categoria> ?? new List<LaTiendita.Domain.Entities.Categoria>();
+}
+
+<style>
+    .pill-status { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .status-suficiente { background: #E4EFE3; color: #3C6E47; }
+    .status-bajo { background: #F7ECD8; color: #B4791E; }
+    .status-agotado { background: #F5E1DA; color: #A8432B; }
+
+    .stock-bar-wrap { display: inline-flex; align-items: center; gap: 8px; }
+    .stock-bar-track { width: 60px; height: 5px; background: #EAEAEA; border-radius: 3px; overflow: hidden; }
+    .stock-bar-fill { height: 100%; border-radius: 3px; }
+
+    .modal-overlay-custom {
+        position: fixed; inset: 0; background: rgba(31, 58, 46, 0.5);
+        display: none; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal-box-custom {
+        background: #fff; width: 100%; max-width: 520px; border-radius: var(--radius-m);
+        padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+</style>
+
+<div style="max-width: 1100px; margin: 0 auto;">
+
+    <!-- Encabezado con Botón -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 2rem;">Productos</h1>
+            <p style="color: var(--ink-soft); margin-top: 4px;">@Model.Count() productos en el catálogo</p>
+        </div>
+        <button type="button" class="btn-primary-custom" onclick="abrirModalNuevo()" style="background: var(--ink); color: #fff; padding: 10px 22px; border-radius: var(--radius-s);">
+            Agregar producto
+        </button>
+    </div>
+
+    <!-- Tarjeta Principal con Filtros y Tabla -->
+    <div class="card-box" style="border: 1px solid var(--border); border-radius: var(--radius-l); padding: 24px 28px;">
+
+        <!-- Filtros -->
+        <form method="get" style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr auto; gap: 14px; margin-bottom: 24px; align-items: center;">
+            <input type="text" name="buscar" value="@ViewBag.Buscar" placeholder="Buscar por nombre o codigo" class="form-control-custom" />
+
+            <select name="categoriaId" class="form-control-custom">
+                <option value="">Todas las categorías</option>
+                @foreach (var cat in categorias)
+                {
+                    <!option value="@cat.Id" @(ViewBag.CategoriaId == cat.Id ? "selected" : "")>@cat.Nombre</!option>
+                }
+            </select>
+
+            <select name="existencia" class="form-control-custom">
+                <!option value="" @(string.IsNullOrEmpty(ViewBag.Existencia) ? "selected" : "")>Cualquier existencia</!option>
+                <!option value="suficiente" @(ViewBag.Existencia == "suficiente" ? "selected" : "")>Suficiente</!option>
+                <!option value="bajo" @(ViewBag.Existencia == "bajo" ? "selected" : "")>Por agotarse</!option>
+                <!option value="agotado" @(ViewBag.Existencia == "agotado" ? "selected" : "")>Agotado</!option>
+            </select>
+
+            <button type="submit" class="btn-action" style="padding: 10px 16px; font-weight: 600;">Filtrar</button>
+        </form>
+
+        <!-- Tabla -->
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Existencia</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--ink-faint); padding: 40px;">
+                            No se encontraron productos con los filtros seleccionados.
+                        </td>
+                    </tr>
+                }
+                @foreach (var p in Model)
+                {
+                    string estadoTexto;
+                    string estadoClase;
+                    string barraColor;
+                    double porcentaje = p.StockMinimo > 0 ? Math.Min(100, (p.Stock * 100.0) / (p.StockMinimo * 2.5)) : 100;
+
+                    if (p.Stock == 0)
+                    {
+                        estadoTexto = "Agotado";
+                        estadoClase = "status-agotado";
+                        barraColor = "var(--danger)";
+                        porcentaje = 0;
+                    }
+                    else if (p.Stock <= p.StockMinimo)
+                    {
+                        estadoTexto = "Por agotarse";
+                        estadoClase = "status-bajo";
+                        barraColor = "var(--warning)";
+                    }
+                    else
+                    {
+                        estadoTexto = "Suficiente";
+                        estadoClase = "status-suficiente";
+                        barraColor = "var(--success)";
+                    }
+
+                    <tr>
+                        <td style="color: var(--ink-soft); font-size: 0.85rem;">P-@p.Id.ToString("D4")</td>
+                        <td style="font-weight: 500;">@p.Nombre</td>
+                        <td>@(p.Categoria?.Nombre ?? "General")</td>
+                        <td style="font-weight: 600;">$@p.Precio.ToString("N2")</td>
+                        <td>
+                            <div class="stock-bar-wrap">
+                                <span>@p.Stock <span style="color: var(--ink-faint); font-size: 0.8rem;">/ mín. @p.StockMinimo</span></span>
+                                <div class="stock-bar-track">
+                                    <div class="stock-bar-fill" style="width: @porcentaje%; background: @barraColor;"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="pill-status @estadoClase">@estadoTexto</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 6px;">
+                                <!-- Botón Editar con atributos data-* a prueba de errores -->
+                                <button type="button" class="btn-action" 
+                                        data-id="@p.Id"
+                                        data-nombre="@p.Nombre"
+                                        data-catid="@p.CategoriaId"
+                                        data-costo="@p.Costo.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                        data-precio="@p.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                        data-stock="@p.Stock"
+                                        data-stockmin="@p.StockMinimo"
+                                        onclick="abrirModalEditar(this)">
+                                    Editar
+                                </button>
+
+                                <form id="form-del-prod-@p.Id" asp-action="Eliminar" method="post" style="display: none;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                </form>
+
+                                <button type="button" class="btn-action" style="color: var(--danger);" 
+                                        onclick="confirmarEliminacion('form-del-prod-@p.Id', '@p.Nombre')">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<!-- MODAL FLOTANTE -->
+<div id="modalProducto" class="modal-overlay-custom" onclick="if(event.target === this) cerrarModal();">
+    <div class="modal-box-custom">
+        <h3 id="modalTitulo" style="margin-bottom: 20px;">Agregar Producto</h3>
+
+        <form asp-action="Guardar" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="prodId" name="Id" value="0" />
+
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label>Nombre del producto *</label>
+                <input type="text" id="prodNombre" name="Nombre" class="form-control-custom" 
+                       placeholder="Ej. Agua purificada 600 ml" minlength="2" maxlength="80" required />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label>Categoría *</label>
+                <select id="prodCategoria" name="CategoriaId" class="form-control-custom" required>
+                    @foreach (var cat in categorias)
+                    {
+                        <option value="@cat.Id">@cat.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div class="form-group">
+                    <label>Costo de compra ($) *</label>
+                    <input type="number" step="0.01" min="0.01" max="999999" id="prodCosto" name="Costo" 
+                           class="form-control-custom" placeholder="0.30" required />
+                </div>
+                <div class="form-group">
+                    <label>Precio de venta ($) *</label>
+                    <input type="number" step="0.01" min="0.01" max="999999" id="prodPrecio" name="Precio" 
+                           class="form-control-custom" placeholder="0.50" required />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                <div class="form-group">
+                    <label>Stock actual *</label>
+                    <input type="number" step="1" min="0" max="999999" id="prodStock" name="Stock" 
+                           class="form-control-custom" value="10" required />
+                </div>
+                <div class="form-group">
+                    <label>Stock mínimo (Alerta) *</label>
+                    <input type="number" step="1" min="1" max="99999" id="prodStockMin" name="StockMinimo" 
+                           class="form-control-custom" value="5" required />
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-cancel-custom" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="btn-primary-custom" style="background: var(--ink);">Guardar Producto</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModalNuevo() {
+        document.getElementById('modalTitulo').innerText = 'Agregar Producto';
+        document.getElementById('prodId').value = '0';
+        document.getElementById('prodNombre').value = '';
+        document.getElementById('prodCosto').value = '';
+        document.getElementById('prodPrecio').value = '';
+        document.getElementById('prodStock').value = '10';
+        document.getElementById('prodStockMin').value = '5';
+        document.getElementById('modalProducto').style.display = 'flex';
+    }
+
+    function abrirModalEditar(btn) {
+        document.getElementById('modalTitulo').innerText = 'Editar Producto';
+        document.getElementById('prodId').value = btn.getAttribute('data-id');
+        document.getElementById('prodNombre').value = btn.getAttribute('data-nombre');
+        document.getElementById('prodCategoria').value = btn.getAttribute('data-catid');
+        document.getElementById('prodCosto').value = btn.getAttribute('data-costo');
+        document.getElementById('prodPrecio').value = btn.getAttribute('data-precio');
+        document.getElementById('prodStock').value = btn.getAttribute('data-stock');
+        document.getElementById('prodStockMin').value = btn.getAttribute('data-stockmin');
+        document.getElementById('modalProducto').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalProducto').style.display = 'none';
+    }
+</script>

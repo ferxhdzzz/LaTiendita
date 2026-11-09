@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LaTiendita.Application.DTOs
+﻿namespace LaTiendita.Application.DTOs
 {
-    internal class VentaRegistroDto
+    public class VentaItemDto
     {
+        public int ProductoId { get; set; }
+        public int Cantidad { get; set; }
+        public decimal PrecioUnitario { get; set; }
+    }
+
+    public class VentaRegistroDto
+    {
+        public int? EmpleadoId { get; set; }
+        public List<VentaItemDto> Items { get; set; } = new List<VentaItemDto>();
     }
 }

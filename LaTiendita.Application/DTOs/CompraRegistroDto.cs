@@ -1,10 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LaTiendita.Application.DTOs
+﻿namespace LaTiendita.Application.DTOs
 {
-    internal class CompraRegistroDto
+    public class CompraItemDto
     {
+        public int ProductoId { get; set; }
+        public int Cantidad { get; set; }
+        public decimal CostoUnitario { get; set; }
+    }
+
+    public class CompraRegistroDto
+    {
+        public int? ProveedorId { get; set; }
+        public int? EmpleadoId { get; set; }
+        public List<CompraItemDto> Items { get; set; } = new List<CompraItemDto>();
     }
 }

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using LaTiendita.Domain.Entities;
 
 namespace LaTiendita.Application.Interfaces
 {
-    internal class IAuthService
+    public interface IAuthService
     {
+        Task<Empleado?> LoginAsync(string correo, string password);
+        string HashPassword(string password);
+        bool VerifyPassword(string password, string hash);
     }
 }

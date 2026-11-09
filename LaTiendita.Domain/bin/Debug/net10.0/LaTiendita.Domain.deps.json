@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "LaTiendita.Domain/1.0.0": {
+        "runtime": {
+          "LaTiendita.Domain.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "LaTiendita.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

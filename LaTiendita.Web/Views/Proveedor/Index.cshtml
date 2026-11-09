@@ -1,0 +1,150 @@
+﻿@model IEnumerable<LaTiendita.Domain.Entities.Proveedor>
+@{
+    ViewData["Title"] = "Proveedores";
+}
+
+<style>
+    .modal-overlay-prov {
+        position: fixed; inset: 0; background: rgba(31, 58, 46, 0.5);
+        display: none; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal-box-prov {
+        background: #fff; width: 100%; max-width: 520px; border-radius: var(--radius-m);
+        padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+</style>
+
+<div style="max-width: 1000px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 2rem;">Proveedores</h1>
+            <p style="color: var(--ink-soft); margin-top: 4px;">Directorio de suministros y contactos</p>
+        </div>
+        <button type="button" class="btn-primary-custom" onclick="abrirModalNuevoProveedor()" style="background: var(--ink); color: #fff; padding: 10px 22px; border-radius: var(--radius-s);">
+            + Agregar Proveedor
+        </button>
+    </div>
+
+    <!-- Tabla de Proveedores con Botón Editar y SweetAlert -->
+    <div class="card-box" style="padding: 0; overflow: hidden; border-radius: var(--radius-m);">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Empresa</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Líneas de producto</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--ink-faint); padding: 35px;">
+                            No hay proveedores registrados aún. Haz clic en "+ Agregar Proveedor".
+                        </td>
+                    </tr>
+                }
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td style="font-weight: 600;">@p.Nombre</td>
+                        <td>@p.Telefono</td>
+                        <td>@p.Correo</td>
+                        <td><span style="background: var(--surface-2); padding: 3px 8px; border-radius: 6px; font-size: 0.8rem;">@p.LineasSuministro</span></td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 6px;">
+                                <button type="button" class="btn-action" 
+                                        onclick="abrirModalEditarProveedor(@p.Id, '@p.Nombre', '@p.Telefono', '@p.Correo', '@p.LineasSuministro')">
+                                    Editar
+                                </button>
+
+                                <!-- Formulario oculto activado por SweetAlert2 -->
+                                <form id="form-del-@p.Id" asp-action="Eliminar" method="post" style="display: none;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                </form>
+
+                                <button type="button" class="btn-action" style="color: var(--danger);" 
+                                        onclick="confirmarEliminacion('form-del-@p.Id', '@p.Nombre')">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL FLOTANTE (Con todos los campos obligatorios) -->
+<div id="modalProveedor" class="modal-overlay-prov" onclick="if(event.target === this) cerrarModalProveedor();">
+    <div class="modal-box-prov">
+        <h3 id="provTitulo" style="margin-bottom: 20px;">Registrar Proveedor</h3>
+
+        <form asp-action="Guardar" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="provId" name="Id" value="0" />
+
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label>Nombre de la Empresa *</label>
+                <input type="text" id="provNombre" name="Nombre" class="form-control-custom" 
+                       placeholder="Ej. Distribuidora Central" minlength="3" maxlength="70" required />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div class="form-group">
+                    <label>Teléfono (solo números) *</label>
+                    <input type="text" id="provTelefono" name="Telefono" class="form-control-custom" 
+                           placeholder="555-1234" maxlength="12" pattern="^[0-9\-]+$" 
+                           oninput="this.value = this.value.replace(/[^0-9\-]/g, '')"
+                           title="Solo números y guiones" required />
+                </div>
+                <div class="form-group">
+                    <label>Correo de contacto *</label>
+                    <input type="email" id="provCorreo" name="Correo" class="form-control-custom" 
+                           placeholder="contacto@empresa.com" maxlength="60" required />
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label>Líneas que suministra *</label>
+                <input type="text" id="provLineas" name="LineasSuministro" class="form-control-custom" 
+                       placeholder="Ej. Bebidas, Botanas, Lácteos" maxlength="100" required />
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-cancel-custom" onclick="cerrarModalProveedor()">Cancelar</button>
+                <button type="submit" class="btn-primary-custom" style="background: var(--ink);">Guardar Proveedor</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModalNuevoProveedor() {
+        document.getElementById('provTitulo').innerText = 'Registrar Proveedor';
+        document.getElementById('provId').value = '0';
+        document.getElementById('provNombre').value = '';
+        document.getElementById('provTelefono').value = '';
+        document.getElementById('provCorreo').value = '';
+        document.getElementById('provLineas').value = '';
+        document.getElementById('modalProveedor').style.display = 'flex';
+    }
+
+    function abrirModalEditarProveedor(id, nombre, tel, correo, lineas) {
+        document.getElementById('provTitulo').innerText = 'Editar Proveedor';
+        document.getElementById('provId').value = id;
+        document.getElementById('provNombre').value = nombre;
+        document.getElementById('provTelefono').value = tel;
+        document.getElementById('provCorreo').value = correo;
+        document.getElementById('provLineas').value = lineas;
+        document.getElementById('modalProveedor').style.display = 'flex';
+    }
+
+    function cerrarModalProveedor() {
+        document.getElementById('modalProveedor').style.display = 'none';
+    }
+</script>

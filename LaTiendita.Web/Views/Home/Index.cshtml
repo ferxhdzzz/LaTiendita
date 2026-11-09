@@ -1,8 +1,221 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
+
+    // Saludo dinámico según la hora
+    var hora = DateTime.Now.Hour;
+    var saludo = hora < 12 ? "Buenos días" : (hora < 18 ? "Buenas tardes" : "Buenas noches");
+    var nombreUsuario = User.Identity?.Name ?? "Usuario";
+
+    // Formatear fecha estilo: Jueves 8, octubre
+    var cultura = new System.Globalization.CultureInfo("es-ES");
+    var fechaHoyTexto = DateTime.Now.ToString("dddd d, MMMM", cultura);
+    fechaHoyTexto = char.ToUpper(fechaHoyTexto[0]) + fechaHoyTexto.Substring(1);
+
+    var totalVentasHoy = (decimal)(ViewBag.TotalVentasHoy ?? 0m);
+    var cantidadVentasHoy = (int)(ViewBag.CantidadVentasHoy ?? 0);
+    var totalPorReponer = (int)(ViewBag.TotalPorReponer ?? 0);
+    var totalProductos = (int)(ViewBag.TotalProductos ?? 0);
+
+    var porReponer = ViewBag.PorReponer as IEnumerable<LaTiendita.Domain.Entities.Producto> ?? new List<LaTiendita.Domain.Entities.Producto>();
+    var ultimosMovimientos = ViewBag.UltimosMovimientos as IEnumerable<LaTiendita.Domain.Entities.Movimiento> ?? new List<LaTiendita.Domain.Entities.Movimiento>();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div style="max-width: 1100px; margin: 0 auto;">
+
+    <!-- ENCABEZADO: Saludo + Fecha a la izquierda y Botones de Acción a la derecha -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 4px 0; color: var(--ink);">
+                @saludo, @nombreUsuario
+            </h1>
+            <p style="color: var(--ink-soft); margin: 0; font-size: 1.05rem; font-weight: 500;">
+                @fechaHoyTexto
+            </p>
+        </div>
+
+      
+    </div>
+
+    <!-- 4 TARJETAS KPI SUPERIORES (Borde superior dorado) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 28px;">
+        
+        <!-- KPI 1: Ventas Hoy -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: 14px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="font-size: 2.1rem; font-weight: 800; color: var(--ink); line-height: 1.1;">
+                $@totalVentasHoy.ToString("N2")
+            </div>
+            <div style="font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; margin-top: 8px;">
+                Vendido hoy (@cantidadVentasHoy @(cantidadVentasHoy == 1 ? "venta" : "ventas"))
+            </div>
+        </div>
+
+        <!-- KPI 2: Por Reponer -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: 14px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="font-size: 2.1rem; font-weight: 800; color: var(--ink); line-height: 1.1;">
+                @totalPorReponer
+            </div>
+            <div style="font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; margin-top: 8px;">
+                Productos por reponer
+            </div>
+        </div>
+
+        <!-- KPI 3: Vencimientos -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: 14px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="font-size: 2.1rem; font-weight: 800; color: var(--ink); line-height: 1.1;">
+                @totalPorReponer
+            </div>
+            <div style="font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; margin-top: 8px;">
+                Lotes vencidos o por vencer
+            </div>
+        </div>
+
+        <!-- KPI 4: Total en Catálogo -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: 14px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="font-size: 2.1rem; font-weight: 800; color: var(--ink); line-height: 1.1;">
+                @totalProductos
+            </div>
+            <div style="font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; margin-top: 8px;">
+                Productos en catálogo
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN INTERMEDIA: 2 Tarjetas (Por reponer y Vencimientos) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+        
+        <!-- Tarjeta Izquierda: Por reponer -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 18px 0; color: var(--ink);">
+                Por reponer
+            </h2>
+
+            @if (!porReponer.Any())
+            {
+                <div style="text-align: center; color: var(--ink-faint); padding: 30px; font-weight: 500;">
+                    Todo el inventario tiene existencias suficientes.
+                </div>
+            }
+            else
+            {
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    @foreach (var p in porReponer)
+                    {
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--surface-2);">
+                            <span style="font-weight: 600; color: var(--ink); font-size: 0.95rem;">@p.Nombre</span>
+                            @if (p.Stock <= 0)
+                            {
+                                <span style="background: var(--danger-bg); color: var(--danger); font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">
+                                    Agotado
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="background: var(--warning-bg); color: var(--warning); font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">
+                                    Quedan @p.Stock
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Tarjeta Derecha: Vencimientos -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 18px 0; color: var(--ink);">
+                Vencimientos
+            </h2>
+
+            @if (!porReponer.Any())
+            {
+                <div style="text-align: center; color: var(--ink-faint); padding: 30px; font-weight: 500;">
+                    No hay alertas de vencimiento pendientes.
+                </div>
+            }
+            else
+            {
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    @foreach (var p in porReponer)
+                    {
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--surface-2);">
+                            <span style="font-weight: 600; color: var(--ink); font-size: 0.95rem;">@p.Nombre (@p.Stock u.)</span>
+                            <span style="background: var(--warning-bg); color: var(--warning); font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">
+                                Revisar lote
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+    </div>
+
+    <!-- SECCIÓN INFERIOR: Últimos movimientos -->
+    <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 40px;">
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--border); background: #ffffff;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--ink);">
+                Últimos movimientos
+            </h2>
+        </div>
+
+        <table class="table-custom" style="width: 100%; border-collapse: collapse; background: #ffffff;">
+            <thead>
+                <tr style="background: var(--surface-accent); text-align: left;">
+                    <th style="padding: 14px 20px; font-weight: 700; color: var(--ink);">Fecha</th>
+                    <th style="padding: 14px 20px; font-weight: 700; color: var(--ink);">Tipo</th>
+                    <th style="padding: 14px 20px; font-weight: 700; color: var(--ink);">Producto</th>
+                    <th style="padding: 14px 20px; text-align: right; font-weight: 700; color: var(--ink);">Cantidad</th>
+                    <th style="padding: 14px 20px; font-weight: 700; color: var(--ink);">Referencia</th>
+                    <th style="padding: 14px 20px; font-weight: 700; color: var(--ink);">Detalle</th>
+                    <th style="padding: 14px 20px; font-weight: 700; color: var(--ink);">Usuario</th>
+                </tr>
+            </thead>
+            <tbody style="background: #ffffff;">
+                @if (!ultimosMovimientos.Any())
+                {
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--ink-faint); padding: 32px; font-weight: 500;">
+                            No hay movimientos recientes registrados.
+                        </td>
+                    </tr>
+                }
+                @foreach (var m in ultimosMovimientos)
+                {
+                    var esSalida = m.Tipo == LaTiendita.Domain.Enums.TipoMovimiento.Salida;
+                    <tr style="border-bottom: 1px solid var(--border); background: #ffffff;">
+                        <td style="padding: 14px 20px; color: var(--ink-soft); font-size: 0.9rem; font-weight: 500;">
+                            @m.Fecha.ToLocalTime().ToString("dd-MMM, h:mm tt")
+                        </td>
+                        <td style="padding: 14px 20px;">
+                            <span style="font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: @(esSalida ? "var(--surface-accent)" : "var(--success-bg)"); color: @(esSalida ? "var(--ink)" : "var(--success)");">
+                                @m.Tipo
+                            </span>
+                        </td>
+                        <td style="padding: 14px 20px; font-weight: 600; color: var(--ink);">
+                            @(m.Producto?.Nombre ?? $"Producto #{m.ProductoId}")
+                        </td>
+                        <td style="padding: 14px 20px; text-align: right; font-weight: 700; color: @(esSalida ? "var(--ink)" : "var(--success)");">
+                            @(esSalida ? $"-{m.Cantidad}" : $"+{m.Cantidad}")
+                        </td>
+                        <td style="padding: 14px 20px; color: var(--ink-soft); font-weight: 500;">
+                            @(string.IsNullOrWhiteSpace(m.Motivo) ? "—" : m.Motivo)
+                        </td>
+                        <td style="padding: 14px 20px; color: var(--ink-soft); font-weight: 500;">
+                            @(esSalida ? "Venta" : "Compra")
+                        </td>
+                        <td style="padding: 14px 20px; font-weight: 500; color: var(--ink);">
+                            @(m.Empleado?.Nombre ?? "Admin")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div style="padding: 16px 24px; background: #ffffff; border-top: 1px solid var(--border);">
+            <a href="/Movimiento" style="color: var(--ink); font-weight: 700; font-size: 0.9rem; text-decoration: underline;">
+                Ver historial completo →
+            </a>
+        </div>
+    </div>
+
 </div>

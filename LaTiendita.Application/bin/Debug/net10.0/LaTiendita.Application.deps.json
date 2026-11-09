@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "LaTiendita.Application/1.0.0": {
+        "dependencies": {
+          "LaTiendita.Domain": "1.0.0"
+        },
+        "runtime": {
+          "LaTiendita.Application.dll": {}
+        }
+      },
+      "LaTiendita.Domain/1.0.0": {
+        "runtime": {
+          "LaTiendita.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "LaTiendita.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "LaTiendita.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

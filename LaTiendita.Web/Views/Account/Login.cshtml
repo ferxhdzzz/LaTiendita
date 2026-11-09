@@ -1,10 +1,69 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LaTiendita.Web.Views.Account
-{
-    class Login
-    {
-    }
+﻿@{
+    Layout = null; // Pantalla limpia sin sidebar
+    ViewData["Title"] = "Acceso - La Tiendita";
 }
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <style>
+        .login-wrapper {
+            min-height: 100vh; width: 100vw;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg); padding: 20px;
+        }
+        .login-card {
+            width: 100%; max-width: 400px;
+            background: var(--surface); border-radius: var(--radius-l);
+            padding: 40px 32px; box-shadow: var(--shadow-card);
+            border: 1px solid var(--border); text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div style="font-size: 2.5rem; margin-bottom: 8px;"></div>
+            <h1 style="font-size: 1.8rem; margin-bottom: 4px;">La Tiendita</h1>
+            <p style="color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 28px;">
+                Sistema de inventario, compras y ventas
+            </p>
+
+            @if (ViewBag.Error != null)
+            {
+                <div style="background: var(--danger-bg); color: var(--danger); padding: 10px 14px; border-radius: var(--radius-s); font-size: 0.85rem; margin-bottom: 20px; text-align: left;">
+                    ⚠ @ViewBag.Error
+                </div>
+            }
+
+            <form action="/Account/Login" method="post" style="text-align: left;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+                <div class="form-group" style="margin-bottom: 18px;">
+                    <label for="correo">Correo electrónico</label>
+                    <input type="email" id="correo" name="correo" class="form-control-custom" placeholder="admin@tiendita.com" required autofocus />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" class="form-control-custom" placeholder="••••••••" required />
+                </div>
+
+                <button type="submit" class="btn-primary-custom" style="width: 100%; padding: 12px; font-size: 1rem; background: var(--accent); color: var(--accent-ink);">
+                    Entrar al Sistema
+                </button>
+            </form>
+
+            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--ink-faint);">
+                Credenciales de prueba inicial:<br />
+                <strong>admin@tiendita.com</strong> / <strong>admin123</strong>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
