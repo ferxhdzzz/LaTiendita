@@ -1,4 +1,5 @@
-﻿@model LaTiendita.Application.DTOs.EmpleadoDto
+﻿@using LaTiendita.Domain.Enums
+@model LaTiendita.Application.DTOs.EmpleadoDto
 @{
     ViewData["Title"] = "Empleados";
     var empleados = ViewBag.Empleados as IEnumerable<LaTiendita.Domain.Entities.Empleado> ?? new List<LaTiendita.Domain.Entities.Empleado>();
@@ -52,6 +53,13 @@
                            pattern="^[0-9+ -]{8,15}$" title="Ingrese entre 8 y 15 dígitos numéricos" 
                            maxlength="15" required />
                 </div>
+
+                <!-- Fila 3: Seleccionar Rol -->
+                <div class="form-group" style="grid-column: span 2;">
+                    <label asp-for="Rol" style="font-weight: 500; margin-bottom: 6px; display: block;">Rol en el sistema *</label>
+                    <select asp-for="Rol" asp-items="Html.GetEnumSelectList<RolUsuario>()" class="form-control-custom" required>
+                    </select>
+                </div>
             </div>
 
             <div style="margin-top: 22px; display: flex; gap: 12px; align-items: center;">
@@ -78,6 +86,7 @@
                     <th style="padding: 14px 20px;">Nombre</th>
                     <th style="padding: 14px 20px;">Teléfono</th>
                     <th style="padding: 14px 20px;">Correo</th>
+                    <th style="padding: 14px 20px;">Rol</th>
                     <th style="padding: 14px 20px;">Contraseña</th>
                     <th style="padding: 14px 20px; text-align: right;">Acciones</th>
                 </tr>
@@ -86,7 +95,7 @@
                 @if (!empleados.Any())
                 {
                     <tr>
-                        <td colspan="5" style="text-align: center; color: var(--ink-faint); padding: 32px; background: #ffffff;">
+                        <td colspan="6" style="text-align: center; color: var(--ink-faint); padding: 32px; background: #ffffff;">
                             No hay empleados registrados aún.
                         </td>
                     </tr>
@@ -101,6 +110,14 @@
                             </a>
                         </td>
                         <td style="padding: 14px 20px;">@emp.Correo</td>
+                        
+                        <!-- Columna de Rol visualmente destacada -->
+                        <td style="padding: 14px 20px;">
+                            <span style="background: #eef2ff; color: #3730a3; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">
+                                @emp.Rol.ToString()
+                            </span>
+                        </td>
+
                         <td style="padding: 14px 20px; letter-spacing: 2px; color: var(--ink-faint);">••••••••</td>
                         <td style="padding: 14px 20px; text-align: right;">
                             <div style="display: inline-flex; gap: 8px; justify-content: flex-end;">

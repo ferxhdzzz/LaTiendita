@@ -32,11 +32,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Application\\LaTiendita.Application.csproj",
+      "projectUniqueName": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Application\\LaTiendita.Application.csproj",
       "projectName": "LaTiendita.Application",
-      "projectPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Application\\LaTiendita.Application.csproj",
+      "projectPath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Application\\LaTiendita.Application.csproj",
       "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Application\\obj\\",
+      "outputPath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Application\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -54,8 +54,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj": {
-              "projectPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj"
+            "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj": {
+              "projectPath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Domain\\LaTiendita.Domain.csproj"
             }
           }
         }

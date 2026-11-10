@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Y1U9M3LKHC0=",
+  "dgSpecHash": "E6NNqfzkpZc=",
   "success": true,
-  "projectFilePath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
+  "projectFilePath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\hp\\.nuget\\packages\\azure.core\\1.50.0\\azure.core.1.50.0.nupkg.sha512",
     "C:\\Users\\hp\\.nuget\\packages\\azure.identity\\1.17.1\\azure.identity.1.17.1.nupkg.sha512",
@@ -47,9 +47,9 @@
       "code": "NU1902",
       "level": "Warning",
       "message": "El paquete \"System.Security.Cryptography.Pkcs\" 9.0.11 tiene una vulnerabilidad de gravedad moderada conocida, https://github.com/advisories/GHSA-2fmv-rv2c-59x7",
-      "projectPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
+      "projectPath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
+      "filePath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
       "libraryId": "System.Security.Cryptography.Pkcs",
       "targetGraphs": [
         "net10.0"
@@ -59,9 +59,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "El paquete \"System.Security.Cryptography.Pkcs\" 9.0.11 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-846f-f764-76mx",
-      "projectPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
+      "projectPath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
+      "filePath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Infrastructure\\LaTiendita.Infrastructure.csproj",
       "libraryId": "System.Security.Cryptography.Pkcs",
       "targetGraphs": [
         "net10.0"

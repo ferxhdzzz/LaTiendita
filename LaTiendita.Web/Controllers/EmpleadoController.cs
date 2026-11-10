@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using LaTiendita.Application.DTOs;
 using LaTiendita.Application.Interfaces;
+using LaTiendita.Domain.Enums;
 
 namespace LaTiendita.Web.Controllers
 {

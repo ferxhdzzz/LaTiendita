@@ -20,81 +20,81 @@ build_property.TargetFrameworkVersion = v10.0
 build_property.EntryPointFilePath = 
 build_property.RootNamespace = LaTiendita.Web
 build_property.RootNamespace = LaTiendita.Web
-build_property.ProjectDir = C:\Users\hp\Desktop\LaTiendita\LaTiendita.Web\
+build_property.ProjectDir = C:\Users\hp\Desktop\uni\DAS\LaTiendita\LaTiendita.Web\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 10.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\hp\Desktop\LaTiendita\LaTiendita.Web
+build_property.MSBuildProjectDirectory = C:\Users\hp\Desktop\uni\DAS\LaTiendita\LaTiendita.Web
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Account/Login.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Alerta/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Alerta/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWxlcnRhXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Categoria/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Categoria/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcmlhXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Compra/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Compra/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcHJhXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Empleado/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Empleado/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbGVhZG9cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Home/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Home/Privacy.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Movimiento/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Movimiento/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW92aW1pZW50b1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Producto/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Producto/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdG9cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Proveedor/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Proveedor/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvdmVlZG9yXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Reporte/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Reporte/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0ZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Shared/Error.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Venta/Index.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Venta/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVudGFcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/_ViewImports.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/_ViewStart.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/hp/Desktop/LaTiendita/LaTiendita.Web/Views/Shared/_Layout.cshtml]
+[C:/Users/hp/Desktop/uni/DAS/LaTiendita/LaTiendita.Web/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-w5l8oez0wf

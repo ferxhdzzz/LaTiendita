@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\hp\\Desktop\\LaTiendita\\",
+  "WorkspaceRootPath": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{40F436EB-E017-CDFE-88A5-235CC71A05E9}|LaTiendita.Web\\LaTiendita.Web.csproj|c:\\users\\hp\\desktop\\latiendita\\latiendita.web\\views\\shared\\_layout.cshtml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "AbsoluteMoniker": "D:0:0:{40F436EB-E017-CDFE-88A5-235CC71A05E9}|LaTiendita.Web\\LaTiendita.Web.csproj|c:\\users\\hp\\desktop\\uni\\das\\latiendita\\latiendita.web\\views\\shared\\_layout.cshtml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{40F436EB-E017-CDFE-88A5-235CC71A05E9}|LaTiendita.Web\\LaTiendita.Web.csproj|solutionrelative:latiendita.web\\views\\shared\\_layout.cshtml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{40F436EB-E017-CDFE-88A5-235CC71A05E9}|LaTiendita.Web\\LaTiendita.Web.csproj|c:\\users\\hp\\desktop\\latiendita\\latiendita.web\\wwwroot\\css\\site.css||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "AbsoluteMoniker": "D:0:0:{40F436EB-E017-CDFE-88A5-235CC71A05E9}|LaTiendita.Web\\LaTiendita.Web.csproj|c:\\users\\hp\\desktop\\uni\\das\\latiendita\\latiendita.web\\wwwroot\\css\\site.css||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{40F436EB-E017-CDFE-88A5-235CC71A05E9}|LaTiendita.Web\\LaTiendita.Web.csproj|solutionrelative:latiendita.web\\wwwroot\\css\\site.css||{8B382828-6202-11D1-8870-0000F87579D2}"
     }
   ],
@@ -18,8 +18,22 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Web\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "LaTiendita.Web\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Web\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "LaTiendita.Web\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-09T01:15:02.397Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
@@ -34,26 +48,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Web\\Views\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "LaTiendita.Web\\Views\\Shared\\_Layout.cshtml",
-              "ToolTip": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Web\\Views\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "LaTiendita.Web\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAGAAAAAAAAAAAAAAAGgAAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-11-09T01:15:02.397Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
               "Title": "site.css",
-              "DocumentMoniker": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Web\\wwwroot\\css\\site.css",
+              "DocumentMoniker": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Web\\wwwroot\\css\\site.css",
               "RelativeDocumentMoniker": "LaTiendita.Web\\wwwroot\\css\\site.css",
-              "ToolTip": "C:\\Users\\hp\\Desktop\\LaTiendita\\LaTiendita.Web\\wwwroot\\css\\site.css",
+              "ToolTip": "C:\\Users\\hp\\Desktop\\uni\\DAS\\LaTiendita\\LaTiendita.Web\\wwwroot\\css\\site.css",
               "RelativeToolTip": "LaTiendita.Web\\wwwroot\\css\\site.css",
-              "ViewState": "AgIAABAAAAAAAAAAAAAqwDAAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
               "WhenOpened": "2026-11-09T01:12:59.213Z",
               "EditorCaption": ""
