@@ -1,4 +1,4 @@
-﻿using LaTiendita.Application.DTOs;
+using LaTiendita.Application.DTOs;
 using LaTiendita.Application.Interfaces;
 using LaTiendita.Domain.Entities;
 using LaTiendita.Domain.Enums;
@@ -17,12 +17,12 @@ namespace LaTiendita.Application.Services
 
         public async Task<IEnumerable<Compra>> GetAllAsync()
         {
-            return await _unitOfWork.Compras.GetAllAsync();
+            return await _unitOfWork.Compras.GetComprasConDetallesAsync();
         }
 
         public async Task<Compra?> GetByIdAsync(int id)
         {
-            return await _unitOfWork.Compras.GetByIdAsync(id);
+            return await _unitOfWork.Compras.GetCompraConDetallesAsync(id);
         }
 
         public async Task<(bool Exito, string Mensaje)> RegistrarCompraAsync(CompraRegistroDto dto)
