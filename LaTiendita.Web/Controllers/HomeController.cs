@@ -42,11 +42,25 @@ namespace LaTiendita.Web.Controllers
             ViewBag.PorReponer = stockBajoList.Take(5).ToList();
             ViewBag.TotalPorReponer = stockBajoList.Count;
 
-            // 3. Total de productos en el catálogo
+            // 3. Lotes vencidos o próximos a vencer (dentro de los próximos 30 días)
+            var compras = await _unitOfWork.Compras.GetComprasConDetallesAsync();
+            var fechaLimiteVencimiento = hoy.AddDays(30);
+            var lotesPorVencer = compras
+                .SelectMany(c => c.Detalles)
+                .Where(d => d.FechaVencimiento.HasValue
+                            && (d.Producto == null || d.Producto.Activo)
+                            && d.FechaVencimiento.Value.Date <= fechaLimiteVencimiento)
+                .OrderBy(d => d.FechaVencimiento!.Value)
+                .ToList();
+
+            ViewBag.TotalVencimientos = lotesPorVencer.Count;
+            ViewBag.LotesPorVencer = lotesPorVencer.Take(5).ToList();
+
+            // 4. Total de productos en el catálogo
             var catalogoActivo = await _productoService.GetAllAsync();
             ViewBag.TotalProductos = catalogoActivo.Count();
 
-            // 4. Últimos movimientos (Kardex)
+            // 5. Últimos movimientos (Kardex)
             var ultimosMovimientos = (await _unitOfWork.Movimientos.GetMovimientosConDetallesAsync())
                 .Take(5)
                 .ToList();

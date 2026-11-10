@@ -1,10 +1,11 @@
-﻿namespace LaTiendita.Application.DTOs
+namespace LaTiendita.Application.DTOs
 {
     public class CompraItemDto
     {
         public int ProductoId { get; set; }
         public int Cantidad { get; set; }
         public decimal CostoUnitario { get; set; }
+        public DateTime? FechaVencimiento { get; set; }
     }
 
     public class CompraRegistroDto

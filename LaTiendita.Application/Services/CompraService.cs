@@ -68,7 +68,8 @@ namespace LaTiendita.Application.Services
                     {
                         ProductoId = producto.Id,
                         Cantidad = item.Cantidad,
-                        CostoUnitario = item.CostoUnitario
+                        CostoUnitario = item.CostoUnitario,
+                        FechaVencimiento = item.FechaVencimiento
                     };
 
                     totalCompra += detalle.Subtotal;

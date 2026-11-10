@@ -17,6 +17,15 @@ namespace LaTiendita.Infrastructure.Data
             catch
             {
                 context.Database.EnsureCreated();
+                try
+                {
+                    context.Database.ExecuteSqlRaw(
+                        "IF COL_LENGTH('DetallesCompra', 'FechaVencimiento') IS NULL ALTER TABLE DetallesCompra ADD FechaVencimiento datetime2 NULL;");
+                }
+                catch
+                {
+                    // Ignorar si la tabla ya cuenta con la columna
+                }
             }
 
             // Si no hay empleados, crear el Administrador por defecto
