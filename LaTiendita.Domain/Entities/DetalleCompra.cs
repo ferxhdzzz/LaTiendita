@@ -1,4 +1,4 @@
-﻿namespace LaTiendita.Domain.Entities
+namespace LaTiendita.Domain.Entities
 {
     public class DetalleCompra
     {
@@ -12,6 +12,7 @@
 
         public int Cantidad { get; set; }
         public decimal CostoUnitario { get; set; }
+        public DateTime? FechaVencimiento { get; set; }
         public decimal Subtotal => Cantidad * CostoUnitario;
     }
 }

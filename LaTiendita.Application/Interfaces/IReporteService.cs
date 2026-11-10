@@ -1,4 +1,5 @@
-﻿using LaTiendita.Application.DTOs;
+using LaTiendita.Application.DTOs;
+using LaTiendita.Domain.Entities;
 
 namespace LaTiendita.Application.Interfaces
 {
@@ -6,5 +7,6 @@ namespace LaTiendita.Application.Interfaces
     {
         Task<ReporteKpisDto> ObtenerKpisAsync(string rango); // "hoy", "semana", "mes", "todo"
         Task<IEnumerable<TopProductoDto>> ObtenerTopProductosVendidosAsync(int top = 5);
+        Task<IEnumerable<Venta>> ObtenerVentasPorRangoAsync(string rango, int limite = 25);
     }
 }

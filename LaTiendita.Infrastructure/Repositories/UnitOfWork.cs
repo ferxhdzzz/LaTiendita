@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 using LaTiendita.Domain.Entities;
 using LaTiendita.Domain.Interfaces;
 using LaTiendita.Infrastructure.Data;
@@ -13,13 +13,13 @@ namespace LaTiendita.Infrastructure.Repositories
         // Repositorios específicos
         public IProductoRepository Productos { get; }
         public IVentaRepository Ventas { get; }
+        public ICompraRepository Compras { get; }
+        public IMovimientoRepository Movimientos { get; }
 
         // Repositorios genéricos
         public IRepository<Empleado> Empleados { get; }
         public IRepository<Categoria> Categorias { get; }
         public IRepository<Proveedor> Proveedores { get; }
-        public IRepository<Compra> Compras { get; }
-        public IRepository<Movimiento> Movimientos { get; }
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -29,8 +29,8 @@ namespace LaTiendita.Infrastructure.Repositories
             Empleados = new Repository<Empleado>(_context);
             Categorias = new Repository<Categoria>(_context);
             Proveedores = new Repository<Proveedor>(_context);
-            Compras = new Repository<Compra>(_context);
-            Movimientos = new Repository<Movimiento>(_context);
+            Compras = new CompraRepository(_context);
+            Movimientos = new MovimientoRepository(_context);
         }
 
         public async Task<int> SaveChangesAsync()

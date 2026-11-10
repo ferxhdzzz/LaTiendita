@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Inicio";
 
     // Saludo dinámico según la hora
@@ -14,9 +14,11 @@
     var totalVentasHoy = (decimal)(ViewBag.TotalVentasHoy ?? 0m);
     var cantidadVentasHoy = (int)(ViewBag.CantidadVentasHoy ?? 0);
     var totalPorReponer = (int)(ViewBag.TotalPorReponer ?? 0);
+    var totalVencimientos = (int)(ViewBag.TotalVencimientos ?? 0);
     var totalProductos = (int)(ViewBag.TotalProductos ?? 0);
 
     var porReponer = ViewBag.PorReponer as IEnumerable<LaTiendita.Domain.Entities.Producto> ?? new List<LaTiendita.Domain.Entities.Producto>();
+    var lotesPorVencer = ViewBag.LotesPorVencer as IEnumerable<LaTiendita.Domain.Entities.DetalleCompra> ?? new List<LaTiendita.Domain.Entities.DetalleCompra>();
     var ultimosMovimientos = ViewBag.UltimosMovimientos as IEnumerable<LaTiendita.Domain.Entities.Movimiento> ?? new List<LaTiendita.Domain.Entities.Movimiento>();
 }
 
@@ -61,8 +63,8 @@
 
         <!-- KPI 3: Vencimientos -->
         <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: 14px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-            <div style="font-size: 2.1rem; font-weight: 800; color: var(--ink); line-height: 1.1;">
-                @totalPorReponer
+            <div style="font-size: 2.1rem; font-weight: 800; color: @(totalVencimientos > 0 ? "var(--danger)" : "var(--ink)"); line-height: 1.1;">
+                @totalVencimientos
             </div>
             <div style="font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; margin-top: 8px;">
                 Lotes vencidos o por vencer
@@ -126,7 +128,7 @@
                 Vencimientos
             </h2>
 
-            @if (!porReponer.Any())
+            @if (!lotesPorVencer.Any())
             {
                 <div style="text-align: center; color: var(--ink-faint); padding: 30px; font-weight: 500;">
                     No hay alertas de vencimiento pendientes.
@@ -135,12 +137,28 @@
             else
             {
                 <div style="display: flex; flex-direction: column; gap: 14px;">
-                    @foreach (var p in porReponer)
+                    @foreach (var lote in lotesPorVencer)
                     {
+                        var fechaVence = lote.FechaVencimiento!.Value.Date;
+                        var diasRestantes = (int)(fechaVence - DateTime.UtcNow.Date).TotalDays;
+                        var esCritico = diasRestantes <= 3;
+                        var bgAlerta = esCritico ? "var(--danger-bg)" : "var(--warning-bg)";
+                        var colAlerta = esCritico ? "var(--danger)" : "var(--warning)";
+                        var etiquetaVence = diasRestantes < 0
+                            ? $"Vencido ({fechaVence:dd-MMM})"
+                            : (diasRestantes == 0 ? "Vence hoy" : $"Vence en {diasRestantes} d ({fechaVence:dd-MMM})");
+
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--surface-2);">
-                            <span style="font-weight: 600; color: var(--ink); font-size: 0.95rem;">@p.Nombre (@p.Stock u.)</span>
-                            <span style="background: var(--warning-bg); color: var(--warning); font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">
-                                Revisar lote
+                            <div>
+                                <span style="font-weight: 600; color: var(--ink); font-size: 0.95rem;">
+                                    @(lote.Producto?.Nombre ?? $"Producto #{lote.ProductoId}")
+                                </span>
+                                <span style="color: var(--ink-soft); font-size: 0.82rem; margin-left: 4px;">
+                                    (Lote: @lote.Cantidad u.)
+                                </span>
+                            </div>
+                            <span style="background: @bgAlerta; color: @colAlerta; font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">
+                                @etiquetaVence
                             </span>
                         </div>
                     }

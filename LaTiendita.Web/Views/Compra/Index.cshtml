@@ -1,4 +1,4 @@
-﻿@model IEnumerable<LaTiendita.Domain.Entities.Compra>
+@model IEnumerable<LaTiendita.Domain.Entities.Compra>
 @{
     ViewData["Title"] = "Compras";
     var productos = ViewBag.Productos as IEnumerable<LaTiendita.Domain.Entities.Producto> ?? new List<LaTiendita.Domain.Entities.Producto>();
@@ -160,7 +160,26 @@
                         <td>
                             @if (c.Detalles != null && c.Detalles.Any())
                             {
-                                @string.Join(", ", c.Detalles.Select(d => $"{d.Cantidad}x {d.Producto?.Nombre}"))
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    @foreach (var d in c.Detalles)
+                                    {
+                                        <div>
+                                            <span>@($"{d.Cantidad}x {d.Producto?.Nombre}")</span>
+                                            @if (d.FechaVencimiento.HasValue)
+                                            {
+                                                var dias = (d.FechaVencimiento.Value.Date - DateTime.UtcNow.Date).TotalDays;
+                                                var bgBadge = dias < 0 ? "var(--danger-bg)" : (dias <= 15 ? "var(--warning-bg)" : "var(--surface-2)");
+                                                var colBadge = dias < 0 ? "var(--danger)" : (dias <= 15 ? "var(--warning)" : "var(--ink-soft)");
+                                                var textoVence = dias < 0
+                                                    ? $"Vencido ({d.FechaVencimiento.Value:dd-MMM-yyyy})"
+                                                    : $"Vence: {d.FechaVencimiento.Value:dd-MMM-yyyy}";
+                                                <span style="background: @bgBadge; color: @colBadge; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 6px;">
+                                                    @textoVence
+                                                </span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
                             }
                             else
                             {
@@ -246,6 +265,7 @@
             cantidad: cantidad,
             costo: costo,
             vence: venceTexto,
+            fechaVencimientoIso: fechaVenceVal ? fechaVenceVal : null,
             subtotal: cantidad * costo
         });
 
@@ -321,7 +341,8 @@
                     Items: detalleCompra.map(x => ({
                         ProductoId: x.productoId,
                         Cantidad: x.cantidad,
-                        CostoUnitario: x.costo
+                        CostoUnitario: x.costo,
+                        FechaVencimiento: x.fechaVencimientoIso
                     }))
                 };
 

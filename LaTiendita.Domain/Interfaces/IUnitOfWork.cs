@@ -1,4 +1,4 @@
-﻿
+
 using LaTiendita.Domain.Entities;
 
 namespace LaTiendita.Domain.Interfaces
@@ -10,8 +10,8 @@ namespace LaTiendita.Domain.Interfaces
         IRepository<Empleado> Empleados { get; }
         IRepository<Categoria> Categorias { get; }
         IRepository<Proveedor> Proveedores { get; }
-        IRepository<Compra> Compras { get; }
-        IRepository<Movimiento> Movimientos { get; }
+        ICompraRepository Compras { get; }
+        IMovimientoRepository Movimientos { get; }
 
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

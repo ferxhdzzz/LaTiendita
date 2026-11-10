@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using LaTiendita.Domain.Entities;
 using LaTiendita.Domain.Interfaces;
 using LaTiendita.Infrastructure.Data;
@@ -36,6 +36,7 @@ namespace LaTiendita.Infrastructure.Repositories
         public async Task<IEnumerable<Venta>> GetVentasPorRangoFechaAsync(DateTime inicio, DateTime fin)
         {
             return await _context.Ventas
+                .Include(v => v.Empleado)
                 .Include(v => v.Detalles)
                     .ThenInclude(d => d.Producto)
                 .Where(v => v.Fecha >= inicio && v.Fecha <= fin)

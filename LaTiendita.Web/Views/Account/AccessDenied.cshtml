@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Acceso Restringido";
+    var returnUrl = ViewData["ReturnUrl"] as string;
+    var rolActual = User.IsInRole("Administrador") ? "Administrador" : "Empleado";
+}
+
+<div style="max-width: 620px; margin: 48px auto;">
+    <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-top: 4px solid var(--danger); border-radius: 14px; padding: 36px 32px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+        <div style="width: 64px; height: 64px; margin: 0 auto 18px auto; border-radius: 50%; background: var(--danger-bg); color: var(--danger); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700;">
+            🔒
+        </div>
+
+        <span style="background: var(--danger-bg); color: var(--danger); font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; letter-spacing: 0.5px; text-transform: uppercase;">
+            Permisos Insuficientes
+        </span>
+
+        <h1 style="font-size: 1.75rem; margin: 14px 0 8px 0; color: var(--ink);">
+            Acceso denegado a esta sección
+        </h1>
+
+        <p style="color: var(--ink-soft); font-size: 0.96rem; line-height: 1.6; margin: 0 0 22px 0;">
+            Tu cuenta actual tiene el rol de <strong>@rolActual</strong> y no cuenta con autorización para acceder a este módulo.
+            Esta área es exclusiva para usuarios con rol de <strong>Administrador</strong>.
+        </p>
+
+        @if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 24px; font-size: 0.85rem; color: var(--ink-soft);">
+                Ruta solicitada: <code style="color: var(--ink); font-weight: 600;">@returnUrl</code>
+            </div>
+        }
+
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="/" class="btn-primary-custom" style="background: var(--ink); color: #ffffff; padding: 11px 24px; border-radius: var(--radius-s); text-decoration: none; font-weight: 600;">
+                Volver al Inicio
+            </a>
+        </div>
+    </div>
+</div>

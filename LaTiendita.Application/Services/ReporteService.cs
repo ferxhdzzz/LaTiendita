@@ -1,5 +1,6 @@
-﻿using LaTiendita.Application.DTOs;
+using LaTiendita.Application.DTOs;
 using LaTiendita.Application.Interfaces;
+using LaTiendita.Domain.Entities;
 using LaTiendita.Domain.Interfaces;
 
 namespace LaTiendita.Application.Services
@@ -13,17 +14,22 @@ namespace LaTiendita.Application.Services
             _unitOfWork = unitOfWork;
         }
 
+        private static DateTime ObtenerFechaInicio(string rango)
+        {
+            var ahora = DateTime.UtcNow;
+            return (rango ?? "hoy").ToLower() switch
+            {
+                "hoy" => ahora.Date,
+                "semana" => ahora.Date.AddDays(-7),
+                "mes" => new DateTime(ahora.Year, ahora.Month, 1),
+                _ => DateTime.MinValue // "todo"
+            };
+        }
+
         public async Task<ReporteKpisDto> ObtenerKpisAsync(string rango)
         {
             // 1. LINQ - Determinar fecha inicial del filtro
-            DateTime fechaInicio = rango.ToLower() switch
-            {
-                "hoy" => DateTime.UtcNow.Date,
-                "semana" => DateTime.UtcNow.Date.AddDays(-7),
-                "mes" => DateTime.UtcNow.Date.AddDays(-30),
-                _ => DateTime.MinValue // "todo"
-            };
-
+            DateTime fechaInicio = ObtenerFechaInicio(rango);
             DateTime fechaFin = DateTime.UtcNow;
 
             // 2. LINQ - Filtro por rango de fechas
@@ -83,6 +89,15 @@ namespace LaTiendita.Application.Services
                 .OrderByDescending(tp => tp.CantidadVendida)
                 .Take(top)
                 .ToList();
+        }
+
+        public async Task<IEnumerable<Venta>> ObtenerVentasPorRangoAsync(string rango, int limite = 25)
+        {
+            DateTime fechaInicio = ObtenerFechaInicio(rango);
+            DateTime fechaFin = DateTime.UtcNow;
+
+            var ventas = await _unitOfWork.Ventas.GetVentasPorRangoFechaAsync(fechaInicio, fechaFin);
+            return ventas.Take(limite).ToList();
         }
     }
 }
