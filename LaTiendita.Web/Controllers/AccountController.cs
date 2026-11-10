@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -83,8 +83,10 @@ namespace LaTiendita.Web.Controllers
         }
 
         // GET: /Account/AccessDenied
-        public IActionResult AccessDenied()
+        [HttpGet]
+        public IActionResult AccessDenied(string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
     }
