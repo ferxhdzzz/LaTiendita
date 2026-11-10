@@ -1,5 +1,6 @@
-﻿using LaTiendita.Domain.Entities;
+using LaTiendita.Domain.Entities;
 using LaTiendita.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -9,7 +10,14 @@ namespace LaTiendita.Infrastructure.Data
     {
         public static void Initialize(ApplicationDbContext context)
         {
-            context.Database.EnsureCreated();
+            try
+            {
+                context.Database.Migrate();
+            }
+            catch
+            {
+                context.Database.EnsureCreated();
+            }
 
             // Si no hay empleados, crear el Administrador por defecto
             if (!context.Empleados.Any())
