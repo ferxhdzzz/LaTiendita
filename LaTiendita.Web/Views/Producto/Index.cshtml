@@ -2,7 +2,12 @@
 @{
     ViewData["Title"] = "Productos";
     var categorias = ViewBag.Categorias as IEnumerable<LaTiendita.Domain.Entities.Categoria> ?? new List<LaTiendita.Domain.Entities.Categoria>();
+    string existenciaActual = ViewBag.Existencia as string ?? "";
+    int categoriaSeleccionada = ViewBag.CategoriaId != null ? (int)ViewBag.CategoriaId : 0;
 }
+
+<!-- Token CSRF para peticiones asíncronas seguras (Módulo 3.1) -->
+@Html.AntiForgeryToken()
 
 <style>
     .pill-status { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
@@ -14,6 +19,7 @@
     .stock-bar-track { width: 60px; height: 5px; background: #EAEAEA; border-radius: 3px; overflow: hidden; }
     .stock-bar-fill { height: 100%; border-radius: 3px; }
 
+    /* Modal flotante emergente */
     .modal-overlay-custom {
         position: fixed; inset: 0; background: rgba(31, 58, 46, 0.5);
         display: none; align-items: center; justify-content: center; z-index: 9999;
@@ -32,7 +38,8 @@
             <h1 style="font-size: 2rem;">Productos</h1>
             <p style="color: var(--ink-soft); margin-top: 4px;">@Model.Count() productos en el catálogo</p>
         </div>
-        <button type="button" class="btn-primary-custom" onclick="abrirModalNuevo()" style="background: var(--ink); color: #fff; padding: 10px 22px; border-radius: var(--radius-s);">
+        <button type="button" class="btn-primary-custom" onclick="abrirModalNuevo()" 
+                style="background: var(--ink); color: #fff; padding: 10px 22px; border-radius: var(--radius-s); cursor: pointer;">
             Agregar producto
         </button>
     </div>
@@ -48,15 +55,53 @@
                 <option value="">Todas las categorías</option>
                 @foreach (var cat in categorias)
                 {
-                    <!option value="@cat.Id" @(ViewBag.CategoriaId == cat.Id ? "selected" : "")>@cat.Nombre</!option>
+                    if (categoriaSeleccionada == cat.Id)
+                    {
+                        <option value="@cat.Id" selected>@cat.Nombre</option>
+                    }
+                    else
+                    {
+                        <option value="@cat.Id">@cat.Nombre</option>
+                    }
                 }
             </select>
 
             <select name="existencia" class="form-control-custom">
-                <!option value="" @(string.IsNullOrEmpty(ViewBag.Existencia) ? "selected" : "")>Cualquier existencia</!option>
-                <!option value="suficiente" @(ViewBag.Existencia == "suficiente" ? "selected" : "")>Suficiente</!option>
-                <!option value="bajo" @(ViewBag.Existencia == "bajo" ? "selected" : "")>Por agotarse</!option>
-                <!option value="agotado" @(ViewBag.Existencia == "agotado" ? "selected" : "")>Agotado</!option>
+                @if (string.IsNullOrEmpty(existenciaActual))
+                {
+                    <option value="" selected>Cualquier existencia</option>
+                }
+                else
+                {
+                    <option value="">Cualquier existencia</option>
+                }
+
+                @if (existenciaActual == "suficiente")
+                {
+                    <option value="suficiente" selected>Suficiente</option>
+                }
+                else
+                {
+                    <option value="suficiente">Suficiente</option>
+                }
+
+                @if (existenciaActual == "bajo")
+                {
+                    <option value="bajo" selected>Por agotarse</option>
+                }
+                else
+                {
+                    <option value="bajo">Por agotarse</option>
+                }
+
+                @if (existenciaActual == "agotado")
+                {
+                    <option value="agotado" selected>Agotado</option>
+                }
+                else
+                {
+                    <option value="agotado">Agotado</option>
+                }
             </select>
 
             <button type="submit" class="btn-action" style="padding: 10px 16px; font-weight: 600;">Filtrar</button>
@@ -111,7 +156,7 @@
                         barraColor = "var(--success)";
                     }
 
-                    <tr>
+                    <tr id="fila-prod-@p.Id" style="transition: all 0.3s ease;">
                         <td style="color: var(--ink-soft); font-size: 0.85rem;">P-@p.Id.ToString("D4")</td>
                         <td style="font-weight: 500;">@p.Nombre</td>
                         <td>@(p.Categoria?.Nombre ?? "General")</td>
@@ -129,7 +174,6 @@
                         </td>
                         <td style="text-align: right;">
                             <div style="display: inline-flex; gap: 6px;">
-                                <!-- Botón Editar con atributos data-* a prueba de errores -->
                                 <button type="button" class="btn-action" 
                                         data-id="@p.Id"
                                         data-nombre="@p.Nombre"
@@ -142,13 +186,8 @@
                                     Editar
                                 </button>
 
-                                <form id="form-del-prod-@p.Id" asp-action="Eliminar" method="post" style="display: none;">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@p.Id" />
-                                </form>
-
                                 <button type="button" class="btn-action" style="color: var(--danger);" 
-                                        onclick="confirmarEliminacion('form-del-prod-@p.Id', '@p.Nombre')">
+                                        onclick="eliminarProductoAsincrono(@p.Id, '@p.Nombre')">
                                     Eliminar
                                 </button>
                             </div>
@@ -162,7 +201,9 @@
 
 </div>
 
-<!-- MODAL FLOTANTE -->
+<!-- ============================================== -->
+<!-- MODAL FLOTANTE: AGREGAR / EDITAR PRODUCTO     -->
+<!-- ============================================== -->
 <div id="modalProducto" class="modal-overlay-custom" onclick="if(event.target === this) cerrarModal();">
     <div class="modal-box-custom">
         <h3 id="modalTitulo" style="margin-bottom: 20px;">Agregar Producto</h3>
@@ -247,5 +288,33 @@
 
     function cerrarModal() {
         document.getElementById('modalProducto').style.display = 'none';
+    }
+
+    // Eliminación asíncrona mediante Fetch API (Módulo 4)
+    function eliminarProductoAsincrono(id, nombre) {
+        if (confirm(`¿Seguro que deseas eliminar "${nombre}" permanentemente?`)) {
+            const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+            fetch(`/api/productos/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'RequestVerificationToken': csrfToken
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.exito) {
+                    const fila = document.getElementById(`fila-prod-${id}`);
+                    if (fila) {
+                        fila.style.opacity = '0';
+                        fila.style.transform = 'translateX(-20px)';
+                        setTimeout(() => fila.remove(), 300);
+                    }
+                } else {
+                    alert(data.mensaje || 'No se pudo eliminar el producto.');
+                }
+            })
+            .catch(() => alert('Error de red al conectar con la API REST.'));
+        }
     }
 </script>

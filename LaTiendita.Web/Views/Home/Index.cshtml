@@ -22,9 +22,21 @@
     var ultimosMovimientos = ViewBag.UltimosMovimientos as IEnumerable<LaTiendita.Domain.Entities.Movimiento> ?? new List<LaTiendita.Domain.Entities.Movimiento>();
 }
 
+<style>
+    /* Modal emergente centrado para pruebas JWT */
+    .modal-overlay-custom {
+        position: fixed; inset: 0; background: rgba(31, 58, 46, 0.5);
+        display: none; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal-box-custom {
+        background: #ffffff; width: 100%; max-width: 580px; border-radius: 14px;
+        padding: 26px 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); border: 1px solid var(--border);
+    }
+</style>
+
 <div style="max-width: 1100px; margin: 0 auto;">
 
-    <!-- ENCABEZADO: Saludo + Fecha a la izquierda y Botones de Acción a la derecha -->
+    <!-- ENCABEZADO: Saludo + Fecha a la izquierda y Botón de Seguridad JWT a la derecha -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
         <div>
             <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 4px 0; color: var(--ink);">
@@ -35,7 +47,13 @@
             </p>
         </div>
 
-      
+        <div>
+            <!-- Botón de Seguridad y API REST (Etapa 4) -->
+            <button type="button" onclick="abrirModalJwt()" 
+                    style="background: #D9A62E; color: #1F3A2E; font-weight: 700; border: none; padding: 11px 20px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(217, 166, 46, 0.25);">
+                <span></span> Probar Token JWT & API REST
+            </button>
+        </div>
     </div>
 
     <!-- 4 TARJETAS KPI SUPERIORES (Borde superior dorado) -->
@@ -237,3 +255,146 @@
     </div>
 
 </div>
+
+<!-- ======================================================== -->
+<!-- MODAL FLOTANTE: PROBADOR DE TOKEN JWT & API (MÓDULO 2)   -->
+<!-- ======================================================== -->
+<div id="modalJwt" class="modal-overlay-custom" onclick="if(event.target === this) cerrarModalJwt();">
+    <div class="modal-box-custom">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h3 style="margin: 0; color: var(--ink); font-size: 1.25rem; font-weight: 800;">
+                 Probador de Seguridad JWT & API REST
+            </h3>
+            <button type="button" onclick="cerrarModalJwt()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--ink-soft); line-height: 1;">&times;</button>
+        </div>
+
+        <!-- 1. Login y Generación -->
+        <div style="background: #F8F9FA; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+            <div style="font-weight: 700; margin-bottom: 8px; color: var(--ink); font-size: 0.88rem;">
+                1. Autenticación y Generación de Token JWT (POST /api/auth/login)
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--ink-soft); font-weight: 600; display: block; margin-bottom: 4px;">Correo:</label>
+                    <input type="email" id="jwtEmail" class="form-control-custom" value="admin@tiendita.com" style="padding: 6px 10px; font-size: 0.85rem; width: 100%; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--ink-soft); font-weight: 600; display: block; margin-bottom: 4px;">Contraseña:</label>
+                    <input type="password" id="jwtPassword" class="form-control-custom" value="admin123" style="padding: 6px 10px; font-size: 0.85rem; width: 100%; box-sizing: border-box;" />
+                </div>
+            </div>
+            <button type="button" class="btn-primary-custom" onclick="obtenerTokenJwt()" style="background: var(--ink); width: 100%; padding: 9px; font-size: 0.85rem; cursor: pointer; border: none; border-radius: 8px; color: #fff; font-weight: 700;">
+                Obtener Token JWT
+            </button>
+
+            <div id="jwtTokenBox" style="display: none; margin-top: 10px;">
+                <div style="background: #E4EFE3; color: #3C6E47; padding: 6px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between;">
+                    <span> HTTP 200 OK: Token JWT generado</span>
+                    <span id="jwtRolBadge">Rol: Administrador</span>
+                </div>
+                <textarea id="jwtTokenDisplay" class="form-control-custom" rows="2" readonly style="font-family: monospace; font-size: 0.72rem; background: #fff; width: 100%; box-sizing: border-box;"></textarea>
+            </div>
+        </div>
+
+        <!-- 2. Pruebas de Autorización -->
+        <div style="background: #F8F9FA; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 18px;">
+            <div style="font-weight: 700; margin-bottom: 6px; color: var(--ink); font-size: 0.88rem;">
+                2. Pruebas de Autorización en Endpoint Protegido (GET /api/auth/perfil)
+            </div>
+            <p style="font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 10px;">Requiere atributo <code>[Authorize]</code> y esquema <code>Bearer</code>.</p>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <button type="button" class="btn-action" onclick="probarConToken()" style="background: #3C6E47; color: #fff; font-weight: 600; border: none; padding: 7px 14px; font-size: 0.8rem; cursor: pointer; border-radius: 8px;">
+                    Probar CON Token (200 OK)
+                </button>
+                <button type="button" class="btn-action" onclick="probarSinToken()" style="background: #A8432B; color: #fff; font-weight: 600; border: none; padding: 7px 14px; font-size: 0.8rem; cursor: pointer; border-radius: 8px;">
+                    Probar SIN Token (401 Unauthorized)
+                </button>
+            </div>
+            <div id="jwtResultadoBox" style="display: none;">
+                <div id="jwtStatusBadge" style="margin-bottom: 6px; font-weight: 700; font-size: 0.8rem;"></div>
+                <pre id="jwtJsonOutput" style="background: #1F3A2E; color: #EDEFE6; padding: 8px 12px; border-radius: 8px; font-size: 0.72rem; max-height: 100px; overflow-y: auto; margin: 0;"></pre>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+            <button type="button" class="btn-cancel-custom" onclick="cerrarModalJwt()" style="padding: 8px 18px; border-radius: 8px; cursor: pointer;">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let tokenJwtGlobal = '';
+
+    function abrirModalJwt() {
+        document.getElementById('modalJwt').style.display = 'flex';
+    }
+
+    function cerrarModalJwt() {
+        document.getElementById('modalJwt').style.display = 'none';
+    }
+
+    async function obtenerTokenJwt() {
+        const email = document.getElementById('jwtEmail').value.trim();
+        const pass = document.getElementById('jwtPassword').value;
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo: email, password: pass })
+            });
+            const data = await res.json();
+            if (res.ok && data.exito) {
+                tokenJwtGlobal = data.token;
+                document.getElementById('jwtTokenDisplay').value = data.token;
+                document.getElementById('jwtRolBadge').innerText = 'Rol: ' + (data.usuario?.rol || 'Administrador');
+                document.getElementById('jwtTokenBox').style.display = 'block';
+            } else {
+                alert(data.mensaje || 'Error al autenticar');
+            }
+        } catch (err) {
+            alert('Error de conexión con /api/auth/login');
+        }
+    }
+
+    async function probarConToken() {
+        if (!tokenJwtGlobal) {
+            alert('Primero presiona "Obtener Token JWT" en el paso 1.');
+            return;
+        }
+        const box = document.getElementById('jwtResultadoBox');
+        const badge = document.getElementById('jwtStatusBadge');
+        const pre = document.getElementById('jwtJsonOutput');
+
+        try {
+            const res = await fetch('/api/auth/perfil', {
+                headers: { 'Authorization': 'Bearer ' + tokenJwtGlobal }
+            });
+            const data = await res.json();
+            box.style.display = 'block';
+            badge.innerHTML = '<span style="color: #3C6E47;"> HTTP 200 OK: Acceso Autorizado mediante JWT</span>';
+            pre.innerText = JSON.stringify(data, null, 2);
+        } catch (e) {
+            badge.innerText = 'Error de conexión';
+        }
+    }
+
+    async function probarSinToken() {
+        const box = document.getElementById('jwtResultadoBox');
+        const badge = document.getElementById('jwtStatusBadge');
+        const pre = document.getElementById('jwtJsonOutput');
+
+        try {
+            const res = await fetch('/api/auth/perfil');
+            box.style.display = 'block';
+            if (res.status === 401) {
+                badge.innerHTML = '<span style="color: #A8432B;"> HTTP 401 Unauthorized: Acceso Denegado (Sin credenciales)</span>';
+                pre.innerText = 'El servidor rechazó la petición porque no se adjuntó el encabezado Authorization: Bearer <token>.';
+            } else {
+                badge.innerText = 'HTTP ' + res.status;
+            }
+        } catch (e) {
+            badge.innerText = 'Error de conexión';
+        }
+    }
+</script>

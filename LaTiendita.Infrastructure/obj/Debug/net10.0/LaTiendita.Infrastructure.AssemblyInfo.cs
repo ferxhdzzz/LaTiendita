@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LaTiendita.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aef38787fc539838170a8e796d3d9637b0f8b2fe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+472b4008b74419cfdefeb08eb7ea24dfca9f05d8")]
 [assembly: System.Reflection.AssemblyProductAttribute("LaTiendita.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LaTiendita.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
