@@ -9,7 +9,6 @@
         <p style="color: var(--ink-soft); margin-top: 4px;">Clasificación de productos de la tienda</p>
     </div>
 
-    <!-- Formulario para Crear o Editar Categoría -->
     <div class="card-box" style="margin-bottom: 28px; padding: 22px;">
         <h3 id="catTituloForm" style="font-size: 1.1rem; margin-bottom: 14px;">Nueva Categoría</h3>
         
@@ -40,7 +39,6 @@
         </form>
     </div>
 
-    <!-- Tabla con Editar y SweetAlert2 -->
     <div class="card-box" style="padding: 0; overflow: hidden; border-radius: var(--radius-m);">
         <table class="table-custom">
             <thead>
@@ -66,13 +64,11 @@
                         <td style="color: var(--ink-soft);">@(c.Descripcion ?? "—")</td>
                         <td style="text-align: right;">
                             <div style="display: inline-flex; gap: 6px;">
-                                <!-- Botón Editar -->
                                 <button type="button" class="btn-action" 
                                         onclick="editarCategoria(@c.Id, '@c.Nombre', '@(c.Descripcion ?? "")')">
                                     Editar
                                 </button>
 
-                                <!-- Formulario oculto activado por SweetAlert2 -->
                                 <form id="form-del-cat-@c.Id" asp-action="Eliminar" method="post" style="display: none;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@c.Id" />

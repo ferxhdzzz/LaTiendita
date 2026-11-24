@@ -48,23 +48,20 @@ namespace LaTiendita.Web.Controllers
                 return View();
             }
 
-            // 1. Crear las credenciales (Claims) con su Rol específico
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, empleado.Nombre),
                 new Claim(ClaimTypes.Email, empleado.Correo),
-                new Claim(ClaimTypes.Role, empleado.Rol.ToString()), // "Administrador" o "Empleado"
+                new Claim(ClaimTypes.Role, empleado.Rol.ToString()),
                 new Claim("EmpleadoId", empleado.Id.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // 2. Iniciar sesión mediante Cookie
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity));
 
-            // 3. Redirigir a la página que intentaba entrar o al Inicio
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);

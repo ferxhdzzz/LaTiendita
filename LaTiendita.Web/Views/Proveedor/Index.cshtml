@@ -25,7 +25,6 @@
         </button>
     </div>
 
-    <!-- Tabla de Proveedores con Botón Editar y SweetAlert -->
     <div class="card-box" style="padding: 0; overflow: hidden; border-radius: var(--radius-m);">
         <table class="table-custom">
             <thead>
@@ -60,7 +59,6 @@
                                     Editar
                                 </button>
 
-                                <!-- Formulario oculto activado por SweetAlert2 -->
                                 <form id="form-del-@p.Id" asp-action="Eliminar" method="post" style="display: none;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@p.Id" />
@@ -79,7 +77,6 @@
     </div>
 </div>
 
-<!-- MODAL FLOTANTE (Con todos los campos obligatorios) -->
 <div id="modalProveedor" class="modal-overlay-prov" onclick="if(event.target === this) cerrarModalProveedor();">
     <div class="modal-box-prov">
         <h3 id="provTitulo" style="margin-bottom: 20px;">Registrar Proveedor</h3>

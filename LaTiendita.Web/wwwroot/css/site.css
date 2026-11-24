@@ -48,15 +48,6 @@ h1, h2, h3, h4 {
     margin: 0;
 }
 
-* { box-sizing: border-box; }
-body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font-family: var(--font-body); font-size: 15px; line-height: 1.5;
-    display: flex; height: 100vh; overflow: hidden;
-}
-
-h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; }
-
 /* Sidebar */
 .sidebar {
     width: 230px; background: var(--surface); border-right: 1px solid var(--border);

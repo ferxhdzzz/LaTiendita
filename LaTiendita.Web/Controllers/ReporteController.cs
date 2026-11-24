@@ -15,16 +15,12 @@ namespace LaTiendita.Web.Controllers
             _reporteService = reporteService;
         }
 
-        // GET: /Reporte o /Reporte?rango=semana
         public async Task<IActionResult> Index(string rango = "hoy")
         {
             var rangoFiltro = (rango ?? "hoy").ToLower();
             ViewBag.Rango = rangoFiltro;
 
-            // 1. Obtener KPIs calculados con LINQ en el servicio
             var kpis = await _reporteService.ObtenerKpisAsync(rangoFiltro);
-
-            // 2. Obtener historial de ventas del período seleccionado desde el servicio
             var ventasRecientes = await _reporteService.ObtenerVentasPorRangoAsync(rangoFiltro, 25);
 
             ViewBag.VentasRecientes = ventasRecientes;

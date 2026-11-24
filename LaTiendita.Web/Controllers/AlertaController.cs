@@ -14,10 +14,8 @@ namespace LaTiendita.Web.Controllers
             _productoService = productoService;
         }
 
-        // GET: /Alerta
         public async Task<IActionResult> Index()
         {
-            // LINQ: Traer solo productos con stock <= stock mínimo ordenados de más crítico a menos crítico
             var alertas = (await _productoService.GetStockBajoAsync())
                 .OrderBy(p => p.Stock);
 

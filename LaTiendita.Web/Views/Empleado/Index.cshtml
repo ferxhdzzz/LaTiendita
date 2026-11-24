@@ -7,13 +7,11 @@
 
 <div style="max-width: 950px; margin: 0 auto;">
 
-    <!-- Encabezado de la página -->
     <div style="margin-bottom: 24px;">
         <h1 style="font-size: 2rem; margin: 0 0 6px 0;">Empleados</h1>
         <p style="color: var(--ink-soft); margin: 0;">@empleados.Count() empleados registrados en el sistema</p>
     </div>
 
-    <!-- TARJETA 1: Formulario con Fondo Blanco -->
     <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
         <h2 style="font-size: 1.2rem; margin-top: 0; margin-bottom: 20px; font-weight: 600; color: var(--ink);">
             @(Model.Id > 0 ? "Editar empleado" : "Registrar nuevo empleado")
@@ -24,7 +22,6 @@
             <input type="hidden" asp-for="Id" />
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;">
-                <!-- Fila 1: Nombre y Contraseña -->
                 <div class="form-group">
                     <label asp-for="Nombre" style="font-weight: 500; margin-bottom: 6px; display: block;">Nombre completo *</label>
                     <input asp-for="Nombre" class="form-control-custom" placeholder="Ej. Roberto Gómez" 
@@ -40,7 +37,6 @@
                            minlength="6" maxlength="30" />
                 </div>
 
-                <!-- Fila 2: Correo y Teléfono -->
                 <div class="form-group">
                     <label asp-for="Correo" style="font-weight: 500; margin-bottom: 6px; display: block;">Correo electrónico *</label>
                     <input asp-for="Correo" type="email" class="form-control-custom" placeholder="roberto@tiendita.com" 
@@ -54,7 +50,6 @@
                            maxlength="15" required />
                 </div>
 
-                <!-- Fila 3: Seleccionar Rol -->
                 <div class="form-group" style="grid-column: span 2;">
                     <label asp-for="Rol" style="font-weight: 500; margin-bottom: 6px; display: block;">Rol en el sistema *</label>
                     <select asp-for="Rol" asp-items="Html.GetEnumSelectList<RolUsuario>()" class="form-control-custom" required>
@@ -63,18 +58,17 @@
             </div>
 
             <div style="margin-top: 22px; display: flex; gap: 12px; align-items: center;">
-                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">
+                <button type="submit" class="btn-primary-custom" style="padding: 10px 24px;">
                     @(Model.Id > 0 ? "Actualizar empleado" : "Registrar empleado")
                 </button>
                 @if (Model.Id > 0)
                 {
-                    <a href="/Empleado" class="btn btn-secondary" style="padding: 10px 20px; text-decoration: none;">Cancelar</a>
+                    <a href="/Empleado" class="btn-cancel-custom" style="padding: 10px 20px; text-decoration: none;">Cancelar</a>
                 }
             </div>
         </form>
     </div>
 
-    <!-- TARJETA 2: Tabla con Fondo Blanco -->
     <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 40px;">
         <div style="padding: 18px 24px; border-bottom: 1px solid var(--border); background: #ffffff;">
             <h2 style="font-size: 1.2rem; margin: 0; font-weight: 600; color: var(--ink);">Empleados registrados</h2>
@@ -82,7 +76,7 @@
 
         <table class="table-custom" style="width: 100%; border-collapse: collapse; background: #ffffff;">
             <thead>
-                <tr style="background: var(--surface-accent); text-align: left;">
+                <tr style="background: var(--surface-2); text-align: left;">
                     <th style="padding: 14px 20px;">Nombre</th>
                     <th style="padding: 14px 20px;">Teléfono</th>
                     <th style="padding: 14px 20px;">Correo</th>
@@ -111,7 +105,6 @@
                         </td>
                         <td style="padding: 14px 20px;">@emp.Correo</td>
                         
-                        <!-- Columna de Rol visualmente destacada -->
                         <td style="padding: 14px 20px;">
                             <span style="background: #eef2ff; color: #3730a3; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">
                                 @emp.Rol.ToString()
@@ -123,7 +116,6 @@
                             <div style="display: inline-flex; gap: 8px; justify-content: flex-end;">
                                 <a href="/Empleado?id=@emp.Id" class="btn-action">Editar</a>
                                 
-                                <!-- Formulario oculto activado por SweetAlert2 -->
                                 <form id="form-del-emp-@emp.Id" asp-action="Eliminar" method="post" style="display: none;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@emp.Id" />

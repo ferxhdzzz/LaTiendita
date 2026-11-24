@@ -11,7 +11,6 @@ namespace LaTiendita.Infrastructure.Repositories
         {
         }
 
-        // LINQ: Join con Categoría
         public async Task<IEnumerable<Producto>> GetProductosConCategoriaAsync()
         {
             return await _context.Productos
@@ -21,7 +20,6 @@ namespace LaTiendita.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        // LINQ: Filtro para Alertas de Stock Bajo
         public async Task<IEnumerable<Producto>> GetProductosStockBajoAsync()
         {
             return await _context.Productos

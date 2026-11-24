@@ -6,7 +6,6 @@
     int categoriaSeleccionada = ViewBag.CategoriaId != null ? (int)ViewBag.CategoriaId : 0;
 }
 
-<!-- Token CSRF para peticiones asíncronas seguras (Módulo 3.1) -->
 @Html.AntiForgeryToken()
 
 <style>
@@ -19,7 +18,6 @@
     .stock-bar-track { width: 60px; height: 5px; background: #EAEAEA; border-radius: 3px; overflow: hidden; }
     .stock-bar-fill { height: 100%; border-radius: 3px; }
 
-    /* Modal flotante emergente */
     .modal-overlay-custom {
         position: fixed; inset: 0; background: rgba(31, 58, 46, 0.5);
         display: none; align-items: center; justify-content: center; z-index: 9999;
@@ -32,7 +30,6 @@
 
 <div style="max-width: 1100px; margin: 0 auto;">
 
-    <!-- Encabezado con Botón -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
         <div>
             <h1 style="font-size: 2rem;">Productos</h1>
@@ -44,12 +41,10 @@
         </button>
     </div>
 
-    <!-- Tarjeta Principal con Filtros y Tabla -->
     <div class="card-box" style="border: 1px solid var(--border); border-radius: var(--radius-l); padding: 24px 28px;">
 
-        <!-- Filtros -->
         <form method="get" style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr auto; gap: 14px; margin-bottom: 24px; align-items: center;">
-            <input type="text" name="buscar" value="@ViewBag.Buscar" placeholder="Buscar por nombre o codigo" class="form-control-custom" />
+            <input type="text" name="buscar" value="@ViewBag.Buscar" placeholder="Buscar por nombre o código" class="form-control-custom" />
 
             <select name="categoriaId" class="form-control-custom">
                 <option value="">Todas las categorías</option>
@@ -107,11 +102,10 @@
             <button type="submit" class="btn-action" style="padding: 10px 16px; font-weight: 600;">Filtrar</button>
         </form>
 
-        <!-- Tabla -->
         <table class="table-custom">
             <thead>
                 <tr>
-                    <th>Codigo</th>
+                    <th>Código</th>
                     <th>Producto</th>
                     <th>Categoría</th>
                     <th>Precio</th>
@@ -201,9 +195,6 @@
 
 </div>
 
-<!-- ============================================== -->
-<!-- MODAL FLOTANTE: AGREGAR / EDITAR PRODUCTO     -->
-<!-- ============================================== -->
 <div id="modalProducto" class="modal-overlay-custom" onclick="if(event.target === this) cerrarModal();">
     <div class="modal-box-custom">
         <h3 id="modalTitulo" style="margin-bottom: 20px;">Agregar Producto</h3>
@@ -290,7 +281,6 @@
         document.getElementById('modalProducto').style.display = 'none';
     }
 
-    // Eliminación asíncrona mediante Fetch API (Módulo 4)
     function eliminarProductoAsincrono(id, nombre) {
         if (confirm(`¿Seguro que deseas eliminar "${nombre}" permanentemente?`)) {
             const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
@@ -298,7 +288,7 @@
             fetch(`/api/productos/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'RequestVerificationToken': csrfToken
+                    'X-CSRF-TOKEN': csrfToken
                 }
             })
             .then(res => res.json())

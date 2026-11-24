@@ -65,16 +65,13 @@
 
 <div style="max-width: 1100px; margin: 0 auto;">
 
-    <!-- Encabezado -->
     <div style="margin-bottom: 24px;">
         <h1 style="font-size: 2rem; margin: 0 0 6px 0;">Nueva venta</h1>
         <p style="color: var(--ink-soft); margin: 0;">Cada venta registrada descuenta automáticamente la existencia en el inventario.</p>
     </div>
 
-    <!-- DOS COLUMNAS: Catálogo (Izq) y Ticket (Der) -->
     <div class="pos-grid">
 
-        <!-- Columna Izquierda: Productos Disponibles -->
         <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
             <h3 style="font-size: 1.15rem; margin: 0 0 14px 0; font-weight: 600;">Productos disponibles</h3>
             
@@ -112,18 +109,15 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Ticket / Carrito -->
         <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 22px; display: flex; flex-direction: column; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
             <h3 style="font-size: 1.15rem; margin: 0 0 14px 0; font-weight: 600;">Ticket</h3>
 
-            <!-- Contenedor dinámico de renglones del ticket -->
             <div id="ticketItems" style="flex: 1; max-height: 330px; overflow-y: auto;">
                 <div style="text-align: center; color: var(--ink-faint); padding: 40px 0;">
                     El ticket está vacío.<br />Selecciona productos a la izquierda para agregarlos.
                 </div>
             </div>
 
-            <!-- Total y Botones de Acción -->
             <div style="border-top: 2px solid var(--border); margin-top: 16px; padding-top: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
                     <span style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 600;">Total</span>
@@ -131,10 +125,10 @@
                 </div>
 
                 <div style="display: flex; gap: 10px;">
-                    <button type="button" id="btnCobrar" class="btn btn-primary" style="flex: 2; padding: 12px; font-size: 1rem;" onclick="cobrarTicket()" disabled>
+                    <button type="button" id="btnCobrar" class="btn-primary-custom" style="flex: 2; padding: 12px; font-size: 1rem;" onclick="cobrarTicket()" disabled>
                         Cobrar $0.00
                     </button>
-                    <button type="button" class="btn btn-secondary" style="flex: 1; padding: 12px; background: #fff; border: 1px solid var(--border);" onclick="vaciarTicket()">
+                    <button type="button" class="btn-cancel-custom" style="flex: 1; padding: 12px; background: #fff; cursor: pointer;" onclick="vaciarTicket()">
                         Vaciar ticket
                     </button>
                 </div>
@@ -143,7 +137,6 @@
 
     </div>
 
-    <!-- SECCIÓN INFERIOR: Tabla de Ventas Recientes -->
     <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-top: 36px; margin-bottom: 40px;">
         <div style="padding: 18px 24px; border-bottom: 1px solid var(--border); background: #ffffff;">
             <h2 style="font-size: 1.2rem; margin: 0; font-weight: 600; color: var(--ink);">Ventas recientes</h2>
@@ -151,7 +144,7 @@
 
         <table class="table-custom" style="width: 100%; border-collapse: collapse; background: #ffffff;">
             <thead>
-                <tr style="background: var(--surface-accent); text-align: left;">
+                <tr style="background: var(--surface-2); text-align: left;">
                     <th style="padding: 14px 20px;">Folio</th>
                     <th style="padding: 14px 20px;">Fecha</th>
                     <th style="padding: 14px 20px;">Productos</th>
@@ -219,7 +212,6 @@
 
 </div>
 
-<!-- JAVASCRIPT DEL TICKET POS -->
 <script>
     let ticket = [];
 
@@ -322,7 +314,6 @@
                         <button type="button" class="qty-btn" onclick="cambiarCantidad(${item.id}, -1)">-</button>
                         <span style="font-weight: 600; margin-left: 6px; min-width: 50px; text-align: right;">$${subtotal.toFixed(2)}</span>
                         
-                        <!-- BOTÓN BOTE DE BASURA PARA BORRAR EL PRODUCTO -->
                         <button type="button" class="trash-btn" onclick="eliminarDelTicket(${item.id})" title="Quitar este producto">
                             🗑️
                         </button>

@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>latiendita-web-secrets-2026</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,12 +19,5 @@
     <ProjectReference Include="..\LaTiendita.Application\LaTiendita.Application.csproj" />
     <ProjectReference Include="..\LaTiendita.Infrastructure\LaTiendita.Infrastructure.csproj" />
   </ItemGroup>
-
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<UserSecretsId>latiendita-web-secrets-2026</UserSecretsId>
-	</PropertyGroup>
 
 </Project>

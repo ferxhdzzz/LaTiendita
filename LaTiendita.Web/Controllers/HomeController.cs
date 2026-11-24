@@ -26,7 +26,6 @@ namespace LaTiendita.Web.Controllers
         {
             var hoy = DateTime.UtcNow.Date;
 
-            // 1. Ventas de hoy
             var ventasHoy = (await _ventaService.GetAllAsync())
                 .Where(v => v.Fecha >= hoy)
                 .ToList();
@@ -34,7 +33,6 @@ namespace LaTiendita.Web.Controllers
             ViewBag.TotalVentasHoy = ventasHoy.Sum(v => v.Total);
             ViewBag.CantidadVentasHoy = ventasHoy.Count;
 
-            // 2. Productos por reponer (Stock bajo o agotado)
             var stockBajoList = (await _productoService.GetStockBajoAsync())
                 .OrderBy(p => p.Stock)
                 .ToList();
@@ -42,7 +40,7 @@ namespace LaTiendita.Web.Controllers
             ViewBag.PorReponer = stockBajoList.Take(5).ToList();
             ViewBag.TotalPorReponer = stockBajoList.Count;
 
-            // 3. Lotes vencidos o próximos a vencer (dentro de los próximos 30 días)
+            // Lotes vencidos o próximos a vencer (próximos 30 días)
             var compras = await _unitOfWork.Compras.GetComprasConDetallesAsync();
             var fechaLimiteVencimiento = hoy.AddDays(30);
             var lotesPorVencer = compras
@@ -56,11 +54,9 @@ namespace LaTiendita.Web.Controllers
             ViewBag.TotalVencimientos = lotesPorVencer.Count;
             ViewBag.LotesPorVencer = lotesPorVencer.Take(5).ToList();
 
-            // 4. Total de productos en el catálogo
             var catalogoActivo = await _productoService.GetAllAsync();
             ViewBag.TotalProductos = catalogoActivo.Count();
 
-            // 5. Últimos movimientos (Kardex)
             var ultimosMovimientos = (await _unitOfWork.Movimientos.GetMovimientosConDetallesAsync())
                 .Take(5)
                 .ToList();

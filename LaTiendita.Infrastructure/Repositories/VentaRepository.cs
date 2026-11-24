@@ -11,7 +11,6 @@ namespace LaTiendita.Infrastructure.Repositories
         {
         }
 
-        // LINQ: Venta con Detalles, Productos y Empleado
         public async Task<Venta?> GetVentaConDetallesAsync(int id)
         {
             return await _context.Ventas
@@ -21,7 +20,6 @@ namespace LaTiendita.Infrastructure.Repositories
                 .FirstOrDefaultAsync(v => v.Id == id);
         }
 
-        // LINQ: Listar todas las ventas ordenadas por fecha más reciente
         public async Task<IEnumerable<Venta>> GetVentasConDetallesAsync()
         {
             return await _context.Ventas
@@ -32,7 +30,6 @@ namespace LaTiendita.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        // LINQ: Filtro por rango de fechas (para Reportes de ventas)
         public async Task<IEnumerable<Venta>> GetVentasPorRangoFechaAsync(DateTime inicio, DateTime fin)
         {
             return await _context.Ventas

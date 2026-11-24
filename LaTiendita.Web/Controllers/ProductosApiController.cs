@@ -18,9 +18,6 @@ namespace LaTiendita.Web.Controllers
             _productoService = productoService;
         }
 
-        /// <summary>
-        /// 1.3 GET: /api/productos (Listar todos los productos)
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -33,9 +30,6 @@ namespace LaTiendita.Web.Controllers
             });
         }
 
-        /// <summary>
-        /// 1.3 GET: /api/productos/{id} (Consultar por ID)
-        /// </summary>
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -48,9 +42,6 @@ namespace LaTiendita.Web.Controllers
             return Ok(new { exito = true, dato = producto });
         }
 
-        /// <summary>
-        /// 1.4 POST: /api/productos (Crear producto con DataAnnotations)
-        /// </summary>
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + CookieAuthenticationDefaults.AuthenticationScheme, Policy = "SoloAdmin")]
         public async Task<IActionResult> Create([FromBody] ProductoDto dto)
@@ -79,9 +70,6 @@ namespace LaTiendita.Web.Controllers
             });
         }
 
-        /// <summary>
-        /// 1.5 PUT: /api/productos/{id} (Actualizar producto existente)
-        /// </summary>
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + CookieAuthenticationDefaults.AuthenticationScheme, Policy = "SoloAdmin")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductoDto dto)
@@ -115,9 +103,6 @@ namespace LaTiendita.Web.Controllers
             });
         }
 
-        /// <summary>
-        /// 1.6 DELETE: /api/productos/{id} (Eliminar producto)
-        /// </summary>
         [HttpDelete("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + CookieAuthenticationDefaults.AuthenticationScheme, Policy = "SoloAdmin")]
         public async Task<IActionResult> Delete(int id)

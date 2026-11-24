@@ -20,15 +20,10 @@ namespace LaTiendita.Web.Controllers
             _jwtService = jwtService;
         }
 
-        /// <summary>
-        /// Endpoint REST: Autenticación y Generación de Token JWT
-        /// POST /api/auth/login
-        /// </summary>
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginApiDto dto)
         {
-            // Validación de modelo (DataAnnotations)
             if (!ModelState.IsValid)
             {
                 return BadRequest(new
@@ -49,7 +44,6 @@ namespace LaTiendita.Web.Controllers
                 });
             }
 
-            // Generar Token JWT firmado con Claims
             var tokenString = _jwtService.GenerarToken(empleado);
 
             return Ok(new
@@ -69,10 +63,6 @@ namespace LaTiendita.Web.Controllers
             });
         }
 
-        /// <summary>
-        /// Endpoint REST protegido con JWT
-        /// GET /api/auth/perfil
-        /// </summary>
         [HttpGet("perfil")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult ObtenerPerfil()

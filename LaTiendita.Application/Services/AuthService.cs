@@ -10,7 +10,6 @@ namespace LaTiendita.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        // Principio DIP: Se inyecta la abstracción IUnitOfWork
         public AuthService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -23,7 +22,6 @@ namespace LaTiendita.Application.Services
 
             if (empleado == null) return null;
 
-            // Verificar la contraseña cifrada
             if (!VerifyPassword(password, empleado.PasswordHash)) return null;
 
             return empleado;

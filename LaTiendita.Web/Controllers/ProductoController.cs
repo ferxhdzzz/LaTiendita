@@ -18,13 +18,11 @@ namespace LaTiendita.Web.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        // GET: /Producto (con filtros avanzados LINQ)
         public async Task<IActionResult> Index(string? buscar, int? categoriaId, string? existencia)
         {
             var productos = await _productoService.GetAllAsync();
             var categorias = await _unitOfWork.Categorias.GetAllAsync();
 
-            // 1. LINQ: Filtro por texto (Nombre o Código)
             if (!string.IsNullOrWhiteSpace(buscar))
             {
                 buscar = buscar.Trim();
@@ -33,13 +31,11 @@ namespace LaTiendita.Web.Controllers
                     $"P-{p.Id:D4}".Contains(buscar, StringComparison.OrdinalIgnoreCase));
             }
 
-            // 2. LINQ: Filtro por Categoría
             if (categoriaId.HasValue && categoriaId.Value > 0)
             {
                 productos = productos.Where(p => p.CategoriaId == categoriaId.Value);
             }
 
-            // 3. LINQ: Filtro por Estado de Existencia
             if (!string.IsNullOrEmpty(existencia))
             {
                 productos = existencia.ToLower() switch
@@ -59,7 +55,6 @@ namespace LaTiendita.Web.Controllers
             return View(productos);
         }
 
-        // POST: /Producto/Guardar (Crea o Actualiza desde el modal)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Guardar(ProductoDto dto)

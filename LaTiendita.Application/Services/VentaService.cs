@@ -30,7 +30,6 @@ namespace LaTiendita.Application.Services
             if (dto.Items == null || !dto.Items.Any())
                 return (false, "La venta debe incluir al menos un producto.");
 
-            // 1. Iniciar Transacción Atómica
             await _unitOfWork.BeginTransactionAsync();
 
             try
@@ -53,30 +52,26 @@ namespace LaTiendita.Application.Services
                         return (false, $"El producto con ID {item.ProductoId} no existe o no está activo.");
                     }
 
-                    // Validación de Regla de Negocio: Stock suficiente
                     if (producto.Stock < item.Cantidad)
                     {
                         await _unitOfWork.RollbackTransactionAsync();
                         return (false, $"Stock insuficiente para '{producto.Nombre}'. Disponible: {producto.Stock}, Solicitado: {item.Cantidad}.");
                     }
 
-                    // Descontar inventario
                     producto.Stock -= item.Cantidad;
                     _unitOfWork.Productos.Update(producto);
 
-                    // Registrar renglón de detalle
                     var detalle = new DetalleVenta
                     {
                         ProductoId = producto.Id,
                         Cantidad = item.Cantidad,
                         PrecioUnitario = item.PrecioUnitario > 0 ? item.PrecioUnitario : producto.Precio,
-                        CostoUnitario = producto.Costo // Guardar costo histórico para cálculo de utilidades
+                        CostoUnitario = producto.Costo
                     };
 
                     totalVenta += detalle.Subtotal;
                     venta.Detalles.Add(detalle);
 
-                    // Registrar auditoría en Movimientos (Kardex)
                     var movimiento = new Movimiento
                     {
                         Fecha = DateTime.UtcNow,
@@ -92,17 +87,13 @@ namespace LaTiendita.Application.Services
                 venta.Total = totalVenta;
                 await _unitOfWork.Ventas.AddAsync(venta);
 
-                // Guardar todos los cambios
                 await _unitOfWork.SaveChangesAsync();
-
-                // 2. Confirmar transacción
                 await _unitOfWork.CommitTransactionAsync();
 
                 return (true, "Venta registrada con éxito.");
             }
             catch (Exception ex)
             {
-                // Revertir todo en caso de error imprevisto
                 await _unitOfWork.RollbackTransactionAsync();
                 return (false, $"Error al procesar la venta: {ex.Message}");
             }

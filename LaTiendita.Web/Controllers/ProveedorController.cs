@@ -25,7 +25,6 @@ namespace LaTiendita.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Guardar(Proveedor model)
         {
-            // Validación estricta: Ningún campo puede estar vacío
             if (string.IsNullOrWhiteSpace(model.Nombre) ||
                 string.IsNullOrWhiteSpace(model.Telefono) ||
                 string.IsNullOrWhiteSpace(model.Correo) ||
@@ -58,7 +57,6 @@ namespace LaTiendita.Web.Controllers
                 var prov = await _unitOfWork.Proveedores.GetByIdAsync(id);
                 if (prov != null)
                 {
-                    // 1. Validar integridad: ¿Tiene compras o productos asociados?
                     var tieneCompras = (await _unitOfWork.Compras.FindAsync(c => c.ProveedorId == id)).Any();
                     var tieneProductos = (await _unitOfWork.Productos.FindAsync(p => p.ProveedorId == id)).Any();
 

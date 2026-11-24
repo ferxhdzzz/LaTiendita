@@ -58,7 +58,7 @@ namespace LaTiendita.Application.Services
             producto.Nombre = dto.Nombre;
             producto.Costo = dto.Costo;
             producto.Precio = dto.Precio;
-            producto.Stock = dto.Stock; // <-- ¡AQUÍ ESTÁ LA LÍNEA QUE FALTABA!
+            producto.Stock = dto.Stock;
             producto.StockMinimo = dto.StockMinimo;
             producto.CategoriaId = dto.CategoriaId;
             producto.ProveedorId = dto.ProveedorId;

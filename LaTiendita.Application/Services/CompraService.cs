@@ -53,17 +53,14 @@ namespace LaTiendita.Application.Services
                         return (false, $"El producto con ID {item.ProductoId} no existe.");
                     }
 
-                    // 1. Aumentar stock en inventario
                     producto.Stock += item.Cantidad;
 
-                    // 2. Actualizar costo unitario del producto con el nuevo precio de compra
                     if (item.CostoUnitario > 0)
                     {
                         producto.Costo = item.CostoUnitario;
                     }
                     _unitOfWork.Productos.Update(producto);
 
-                    // 3. Registrar renglón de compra
                     var detalle = new DetalleCompra
                     {
                         ProductoId = producto.Id,
@@ -75,7 +72,6 @@ namespace LaTiendita.Application.Services
                     totalCompra += detalle.Subtotal;
                     compra.Detalles.Add(detalle);
 
-                    // 4. Registrar en Movimientos (Kardex de entradas)
                     var movimiento = new Movimiento
                     {
                         Fecha = DateTime.UtcNow,

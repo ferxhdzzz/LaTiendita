@@ -11,20 +11,14 @@ using LaTiendita.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =========================================================
-// 1. BASE DE DATOS SQL SERVER
-// =========================================================
+// Base de datos SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// =========================================================
-// 2. UNIDAD DE TRABAJO Y REPOSITORIOS (DIP / SOLID)
-// =========================================================
+// Repositorios y unidad de trabajo
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// =========================================================
-// 3. SERVICIOS DE NEGOCIO Y SERVICIO JWT
-// =========================================================
+// Servicios de aplicación
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
@@ -32,7 +26,6 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 
-// Inyección de JwtService con lectura segura de appsettings.json
 builder.Services.AddScoped<IJwtService>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
@@ -43,15 +36,12 @@ builder.Services.AddScoped<IJwtService>(sp =>
     return new JwtService(secretKey, issuer, audience, duration);
 });
 
-// =========================================================
-// 4. AUTENTICACIÓN DUAL (COOKIES PARA WEB + JWT PARA API)
-// =========================================================
+// Autenticación con cookies para la web y JWT para la API
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var jwtKey = jwtSettings["SecretKey"] ?? "LaTiendita_SuperSecretKey_2026_DesarrolloWebSeguro_TokenKeyJWT!";
 
 builder.Services.AddAuthentication(options =>
 {
-    // Por defecto en navegador usa cookies
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
@@ -78,9 +68,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// =========================================================
-// 5. POLÍTICAS DE AUTORIZACIÓN (Módulo 2.4)
-// =========================================================
+// Políticas de autorización por rol
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("SoloAdmin", policy =>
@@ -90,9 +78,6 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Administrador", "Empleado"));
 });
 
-// =========================================================
-// 6. PROTECCIÓN CSRF / ANTIFORGERY (Módulo 3.1)
-// =========================================================
 builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "X-CSRF-TOKEN";
@@ -102,16 +87,13 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// =========================================================
-// 7. INICIALIZAR BASE DE DATOS AL ARRANCAR
-// =========================================================
+// Inicialización de datos base
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     DbInitializer.Initialize(context);
 }
 
-// Pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -123,15 +105,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// 8. MIDDLEWARE DE SEGURIDAD
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 9. RUTAS MVC + RUTAS DE CONTROLADORES API REST
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapControllers(); // Habilita las rutas de la API (/api/...)
+app.MapControllers();
 
 app.Run();

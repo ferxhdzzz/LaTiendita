@@ -21,14 +21,11 @@
 
 <div style="max-width: 1100px; margin: 0 auto;">
 
-    <!-- DOS COLUMNAS SUPERIORES -->
     <div class="compra-grid">
 
-        <!-- Columna Izquierda: Formulario de Mercancía Recibida -->
         <div class="card-box" style="padding: 24px;">
             <h3 style="font-size: 1.25rem; margin-bottom: 18px;">Mercancía recibida</h3>
 
-            <!-- Distribuidor -->
             <div class="form-group" style="margin-bottom: 12px;">
                 <label>Distribuidor</label>
                 <select id="compraProveedor" class="form-control-custom">
@@ -43,7 +40,6 @@
                 </a>
             </div>
 
-            <!-- Producto -->
             <div class="form-group" style="margin-bottom: 14px;">
                 <label>Producto</label>
                 <select id="compraProducto" class="form-control-custom" onchange="autoCompletarCosto()">
@@ -57,7 +53,6 @@
                 </select>
             </div>
 
-            <!-- Cantidad y Costo -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
                 <div class="form-group">
                     <label>Cantidad recibida *</label>
@@ -69,7 +64,6 @@
                 </div>
             </div>
 
-            <!-- Fecha de vencimiento (Con validación contra fechas pasadas) -->
             <div class="form-group" style="margin-bottom: 22px;">
                 <label>Fecha de vencimiento del lote</label>
                 <input type="date" id="compraVence" class="form-control-custom" />
@@ -83,7 +77,6 @@
             </button>
         </div>
 
-        <!-- Columna Derecha: Detalle de Compra -->
         <div class="card-box" style="padding: 24px; display: flex; flex-direction: column;">
             <h3 style="font-size: 1.25rem; margin-bottom: 16px;">Detalle de compra</h3>
 
@@ -108,7 +101,6 @@
                 </table>
             </div>
 
-            <!-- Total y Botón Registrar -->
             <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: auto;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
                     <span style="font-size: 1.1rem; color: var(--ink-soft);">Total de la compra</span>
@@ -125,7 +117,6 @@
 
     </div>
 
-    <!-- TABLA INFERIOR: Historial de Compras -->
     <div class="card-box" style="padding: 0; overflow: hidden; border-radius: var(--radius-m);">
         <h3 style="padding: 20px 24px; font-size: 1.2rem; margin: 0; border-bottom: 1px solid var(--border);">
             Historial de compras
@@ -136,7 +127,7 @@
                 <tr>
                     <th>Folio</th>
                     <th>Fecha</th>
-                    <th>Proveedores</th>
+                    <th>Proveedor</th>
                     <th>Productos</th>
                     <th>Recibió</th>
                     <th>Total</th>
@@ -199,7 +190,6 @@
 <script>
     let detalleCompra = [];
 
-    // Bloquear fechas pasadas en el calendario directamente
     document.addEventListener("DOMContentLoaded", function() {
         const inputFecha = document.getElementById('compraVence');
         const hoyIso = new Date().toISOString().split('T')[0];
@@ -237,7 +227,6 @@
             return;
         }
 
-        // VALIDACIÓN: La fecha de vencimiento no puede ser anterior a hoy
         let venceTexto = 'No aplica';
         if (fechaVenceVal) {
             const fechaIngresada = new Date(fechaVenceVal + 'T00:00:00');
