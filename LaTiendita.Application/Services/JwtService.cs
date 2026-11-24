@@ -15,11 +15,14 @@ namespace LaTiendita.Application.Services
         private readonly int _durationInHours;
 
         public JwtService(
-            string secretKey = "LaTiendita_SuperSecretKey_2026_DesarrolloWebSeguro_TokenKeyJWT!",
+            string secretKey,
             string issuer = "LaTienditaApi",
             string audience = "LaTienditaClients",
             int durationInHours = 8)
         {
+            if (string.IsNullOrWhiteSpace(secretKey))
+                throw new ArgumentException("La clave secreta JWT es obligatoria.", nameof(secretKey));
+
             _secretKey = secretKey;
             _issuer = issuer;
             _audience = audience;

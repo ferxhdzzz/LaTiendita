@@ -12,8 +12,17 @@ using LaTiendita.Infrastructure.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Base de datos SQL Server
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "No se encontró 'ConnectionStrings:DefaultConnection'. " +
+        "Configúrala localmente con 'dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"...\"' " +
+        "o mediante la variable de entorno ConnectionStrings__DefaultConnection.");
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // Repositorios y unidad de trabajo
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -26,20 +35,24 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 
-builder.Services.AddScoped<IJwtService>(sp =>
+// Configuración JWT desde secretos de usuario o variables de entorno
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var jwtKey = jwtSettings["SecretKey"];
+if (string.IsNullOrWhiteSpace(jwtKey))
 {
-    var config = sp.GetRequiredService<IConfiguration>();
-    var secretKey = config["JwtSettings:SecretKey"] ?? "LaTiendita_SuperSecretKey_2026_DesarrolloWebSeguro_TokenKeyJWT!";
-    var issuer = config["JwtSettings:Issuer"] ?? "LaTienditaApi";
-    var audience = config["JwtSettings:Audience"] ?? "LaTienditaClients";
-    var duration = int.Parse(config["JwtSettings:DurationInHours"] ?? "8");
-    return new JwtService(secretKey, issuer, audience, duration);
-});
+    throw new InvalidOperationException(
+        "No se encontró 'JwtSettings:SecretKey'. " +
+        "Configúrala localmente con 'dotnet user-secrets set \"JwtSettings:SecretKey\" \"...\"' " +
+        "o mediante la variable de entorno JwtSettings__SecretKey.");
+}
+var jwtIssuer = jwtSettings["Issuer"] ?? "LaTienditaApi";
+var jwtAudience = jwtSettings["Audience"] ?? "LaTienditaClients";
+var jwtDuration = int.Parse(jwtSettings["DurationInHours"] ?? "8");
+
+builder.Services.AddScoped<IJwtService>(_ =>
+    new JwtService(jwtKey, jwtIssuer, jwtAudience, jwtDuration));
 
 // Autenticación con cookies para la web y JWT para la API
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var jwtKey = jwtSettings["SecretKey"] ?? "LaTiendita_SuperSecretKey_2026_DesarrolloWebSeguro_TokenKeyJWT!";
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -61,8 +74,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"] ?? "LaTienditaApi",
-        ValidAudience = jwtSettings["Audience"] ?? "LaTienditaClients",
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         ClockSkew = TimeSpan.Zero
     };
