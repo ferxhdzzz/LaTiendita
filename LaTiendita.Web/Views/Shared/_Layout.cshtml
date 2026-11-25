@@ -67,36 +67,44 @@
 			</main>
 		</div>
 
+		<!-- Librerías base y helpers globales -->
+		<script src="~/lib/jquery/dist/jquery.min.js"></script>
+		<script src="~/js/site.js"></script>
+
 		<!-- Scripts Globales de SweetAlert2 -->
 		<script>
 			function confirmarEliminacion(formId, elementoNombre) {
-			Swal.fire({
-			title: '¿Estás seguro?',
-			text: `Deseas eliminar "${elementoNombre}". Esta acción no se puede deshacer.`,
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#A8432B',
-			cancelButtonColor: '#52655A',
-			confirmButtonText: 'Sí, eliminar',
-			cancelButtonText: 'Cancelar'
-			}).then((result) => {
-			if (result.isConfirmed) {
-			document.getElementById(formId).submit();
+				Swal.fire({
+					title: '¿Estás seguro?',
+					text: `Deseas eliminar "${elementoNombre}". Esta acción no se puede deshacer.`,
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#A8432B',
+					cancelButtonColor: '#52655A',
+					confirmButtonText: 'Sí, eliminar',
+					cancelButtonText: 'Cancelar'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						document.getElementById(formId).submit();
+					}
+				});
 			}
-			});
+
+			function confirmarEliminacionBtn(btn) {
+				confirmarEliminacion(btn.getAttribute('data-form'), btn.getAttribute('data-nombre') || '');
 			}
 		</script>
 		@if (TempData["Exito"] != null)
 		{
 		<script>
 			document.addEventListener("DOMContentLoaded", function() {
-			Swal.fire({
-			icon: 'success',
-			title: '¡Completado!',
-			text: '@Html.Raw(TempData["Exito"])',
-			confirmButtonColor: '#1F3A2E',
-			timer: 2800
-			});
+				Swal.fire({
+					icon: 'success',
+					title: '¡Completado!',
+					text: @Json.Serialize(TempData["Exito"]),
+					confirmButtonColor: '#1F3A2E',
+					timer: 2800
+				});
 			});
 		</script>
 		}
@@ -104,12 +112,12 @@
 		{
 		<script>
 			document.addEventListener("DOMContentLoaded", function() {
-			Swal.fire({
-			icon: 'error',
-			title: 'Atención',
-			text: '@Html.Raw(TempData["Error"])',
-			confirmButtonColor: '#A8432B'
-			});
+				Swal.fire({
+					icon: 'error',
+					title: 'Atención',
+					text: @Json.Serialize(TempData["Error"]),
+					confirmButtonColor: '#A8432B'
+				});
 			});
 		</script>
 		}

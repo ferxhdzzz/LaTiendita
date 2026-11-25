@@ -1,60 +1,89 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using LaTiendita.Domain.Entities;
 using LaTiendita.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
+using LaTiendita.Infrastructure.Identity;
 
 namespace LaTiendita.Infrastructure.Data
 {
     public static class DbInitializer
     {
-        public static void Initialize(ApplicationDbContext context)
+        public static async Task InitializeAsync(IServiceProvider serviceProvider)
         {
-            try
+            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            // Aplicar migraciones pendientes de EF Core (incluyendo tablas de Identity)
+            await context.Database.MigrateAsync();
+
+            // 1. Crear roles base en ASP.NET Core Identity
+            string[] roles = { nameof(RolUsuario.Administrador), nameof(RolUsuario.Empleado) };
+            foreach (var rol in roles)
             {
-                context.Database.EnsureCreated();
-                context.Database.ExecuteSqlRaw("IF COL_LENGTH('DetallesCompra', 'FechaVencimiento') IS NULL ALTER TABLE DetallesCompra ADD FechaVencimiento datetime2 NULL;");
-            }
-            catch
-            {
-                // Si la base de datos o columna ya existen, continúa con normalidad
+                if (!await roleManager.RoleExistsAsync(rol))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(rol));
+                }
             }
 
-            // Si no hay empleados, crear el Administrador por defecto
-            if (!context.Empleados.Any())
+            // 2. Crear registro base de empleado y usuario administrador en Identity
+            const string adminEmail = "admin@tiendita.com";
+            var adminEmpleado = await context.Empleados
+                .FirstOrDefaultAsync(e => e.Correo.ToLower() == adminEmail);
+
+            if (adminEmpleado == null)
             {
-                var admin = new Empleado
+                adminEmpleado = new Empleado
                 {
                     Nombre = "Administrador Principal",
                     Telefono = "2222-4510",
-                    Correo = "admin@tiendita.com",
-                    PasswordHash = HashPassword("admin123"),
+                    Correo = adminEmail,
+                    PasswordHash = "IDENTITY_MANAGED",
                     Rol = RolUsuario.Administrador,
                     Activo = true,
                     FechaRegistro = DateTime.UtcNow
                 };
-                context.Empleados.Add(admin);
+                context.Empleados.Add(adminEmpleado);
+                await context.SaveChangesAsync();
             }
 
-            // Categorías base
-            if (!context.Categorias.Any())
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                adminUser = new ApplicationUser
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    PhoneNumber = adminEmpleado.Telefono,
+                    NombreCompleto = adminEmpleado.Nombre,
+                    Activo = true,
+                    EmpleadoId = adminEmpleado.Id
+                };
+
+                var resultado = await userManager.CreateAsync(adminUser, "admin123");
+                if (resultado.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, nameof(RolUsuario.Administrador));
+                }
+            }
+            else if (!await userManager.IsInRoleAsync(adminUser, nameof(RolUsuario.Administrador)))
+            {
+                await userManager.AddToRoleAsync(adminUser, nameof(RolUsuario.Administrador));
+            }
+
+            // 3. Categorías base
+            if (!await context.Categorias.AnyAsync())
             {
                 context.Categorias.AddRange(
                     new Categoria { Nombre = "Bebidas", Descripcion = "Refrescos, jugos y aguas" },
                     new Categoria { Nombre = "Snacks", Descripcion = "Frituras y botanas" },
                     new Categoria { Nombre = "Abarrotes", Descripcion = "Granos, pastas y enlatados" }
                 );
+                await context.SaveChangesAsync();
             }
-
-            context.SaveChanges();
-        }
-
-        private static string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
         }
     }
 }

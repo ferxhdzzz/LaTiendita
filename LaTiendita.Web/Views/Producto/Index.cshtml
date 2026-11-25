@@ -33,12 +33,17 @@
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
         <div>
             <h1 style="font-size: 2rem;">Productos</h1>
-            <p style="color: var(--ink-soft); margin-top: 4px;">@Model.Count() productos en el catálogo</p>
+            <p style="color: var(--ink-soft); margin-top: 4px;">
+                <span id="contadorProductos">@Model.Count()</span> productos en el catálogo
+            </p>
         </div>
-        <button type="button" class="btn-primary-custom" onclick="abrirModalNuevo()" 
-                style="background: var(--ink); color: #fff; padding: 10px 22px; border-radius: var(--radius-s); cursor: pointer;">
-            Agregar producto
-        </button>
+        @if (User.IsInRole("Administrador"))
+        {
+            <button type="button" class="btn-primary-custom" onclick="abrirModalNuevo()" 
+                    style="background: var(--ink); color: #fff; padding: 10px 22px; border-radius: var(--radius-s); cursor: pointer;">
+                Agregar producto
+            </button>
+        }
     </div>
 
     <div class="card-box" style="border: 1px solid var(--border); border-radius: var(--radius-l); padding: 24px 28px;">
@@ -114,10 +119,10 @@
                     <th style="text-align: right;">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tbodyProductos">
                 @if (!Model.Any())
                 {
-                    <tr>
+                    <tr id="filaSinProductos">
                         <td colspan="7" style="text-align: center; color: var(--ink-faint); padding: 40px;">
                             No se encontraron productos con los filtros seleccionados.
                         </td>
@@ -168,25 +173,31 @@
                         </td>
                         <td style="text-align: right;">
                             <div style="display: inline-flex; gap: 6px;">
-                                <button type="button" class="btn-action" 
-                                        data-id="@p.Id"
-                                        data-nombre="@p.Nombre"
-                                        data-catid="@p.CategoriaId"
-                                        data-provid="@(p.ProveedorId?.ToString() ?? "")"
-                                        data-costo="@p.Costo.ToString(System.Globalization.CultureInfo.InvariantCulture)"
-                                        data-precio="@p.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
-                                        data-stock="@p.Stock"
-                                        data-stockmin="@p.StockMinimo"
-                                        onclick="abrirModalEditar(this)">
-                                    Editar
-                                </button>
-
                                 @if (User.IsInRole("Administrador"))
                                 {
+                                    <button type="button" class="btn-action" 
+                                            data-id="@p.Id"
+                                            data-nombre="@p.Nombre"
+                                            data-catid="@p.CategoriaId"
+                                            data-provid="@(p.ProveedorId?.ToString() ?? "")"
+                                            data-costo="@p.Costo.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-precio="@p.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-stock="@p.Stock"
+                                            data-stockmin="@p.StockMinimo"
+                                            onclick="abrirModalEditar(this)">
+                                        Editar
+                                    </button>
+
                                     <button type="button" class="btn-action" style="color: var(--danger);" 
-                                            onclick="eliminarProductoAsincrono(@p.Id, '@p.Nombre')">
+                                            data-id="@p.Id"
+                                            data-nombre="@p.Nombre"
+                                            onclick="eliminarProductoAsincrono(this)">
                                         Eliminar
                                     </button>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--ink-faint); font-size: 0.8rem;">Solo lectura</span>
                                 }
                             </div>
                         </td>
@@ -203,7 +214,7 @@
     <div class="modal-box-custom">
         <h3 id="modalTitulo" style="margin-bottom: 20px;">Agregar Producto</h3>
 
-        <form asp-action="Guardar" method="post">
+        <form id="formProducto" asp-action="Guardar" method="post" onsubmit="guardarProductoAsincrono(event)">
             @Html.AntiForgeryToken()
             <input type="hidden" id="prodId" name="Id" value="0" />
             <input type="hidden" id="prodProveedorId" name="ProveedorId" value="" />
@@ -288,39 +299,209 @@
         document.getElementById('modalProducto').style.display = 'none';
     }
 
-    function eliminarProductoAsincrono(id, nombre) {
-        if (confirm(`¿Seguro que deseas eliminar "${nombre}" permanentemente?`)) {
-            const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+    function construirFilaProductoHtml(p) {
+        const codigo = 'P-' + String(p.id).padStart(4, '0');
+        let estadoTexto = 'Suficiente';
+        let estadoClase = 'status-suficiente';
+        let barraColor = 'var(--success)';
+        let porcentaje = p.stockMinimo > 0 ? Math.min(100, (p.stock * 100.0) / (p.stockMinimo * 2.5)) : 100;
 
-            fetch(`/api/productos/${id}`, {
-                method: 'DELETE',
+        if (p.stock === 0) {
+            estadoTexto = 'Agotado';
+            estadoClase = 'status-agotado';
+            barraColor = 'var(--danger)';
+            porcentaje = 0;
+        } else if (p.stock <= p.stockMinimo) {
+            estadoTexto = 'Por agotarse';
+            estadoClase = 'status-bajo';
+            barraColor = 'var(--warning)';
+        }
+
+        const nombreSeguro = escapeHtml(p.nombre);
+        const catSegura = escapeHtml(p.categoriaNombre || 'General');
+
+        return `
+            <td style="color: var(--ink-soft); font-size: 0.85rem;">${codigo}</td>
+            <td style="font-weight: 500;">${nombreSeguro}</td>
+            <td>${catSegura}</td>
+            <td style="font-weight: 600;">$${Number(p.precio).toFixed(2)}</td>
+            <td>
+                <div class="stock-bar-wrap">
+                    <span>${p.stock} <span style="color: var(--ink-faint); font-size: 0.8rem;">/ mín. ${p.stockMinimo}</span></span>
+                    <div class="stock-bar-track">
+                        <div class="stock-bar-fill" style="width: ${porcentaje}%; background: ${barraColor};"></div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span class="pill-status ${estadoClase}">${estadoTexto}</span>
+            </td>
+            <td style="text-align: right;">
+                <div style="display: inline-flex; gap: 6px;">
+                    <button type="button" class="btn-action"
+                            data-id="${p.id}"
+                            data-nombre="${nombreSeguro}"
+                            data-catid="${p.categoriaId}"
+                            data-provid="${p.proveedorId || ''}"
+                            data-costo="${Number(p.costo)}"
+                            data-precio="${Number(p.precio)}"
+                            data-stock="${p.stock}"
+                            data-stockmin="${p.stockMinimo}"
+                            onclick="abrirModalEditar(this)">
+                        Editar
+                    </button>
+                    <button type="button" class="btn-action" style="color: var(--danger);"
+                            data-id="${p.id}"
+                            data-nombre="${nombreSeguro}"
+                            onclick="eliminarProductoAsincrono(this)">
+                        Eliminar
+                    </button>
+                </div>
+            </td>
+        `;
+    }
+
+    function actualizarContadorProductos(delta) {
+        const contador = document.getElementById('contadorProductos');
+        if (!contador) return;
+        const actual = parseInt(contador.innerText, 10) || 0;
+        contador.innerText = Math.max(0, actual + delta);
+    }
+
+    async function guardarProductoAsincrono(event) {
+        event.preventDefault();
+
+        const id = parseInt(document.getElementById('prodId').value, 10) || 0;
+        const provVal = document.getElementById('prodProveedorId').value;
+        const selectCat = document.getElementById('prodCategoria');
+        const categoriaNombre = selectCat.options[selectCat.selectedIndex]?.text || 'General';
+
+        const payload = {
+            id: id,
+            nombre: document.getElementById('prodNombre').value.trim(),
+            categoriaId: parseInt(selectCat.value, 10),
+            proveedorId: provVal ? parseInt(provVal, 10) : null,
+            costo: parseFloat(document.getElementById('prodCosto').value),
+            precio: parseFloat(document.getElementById('prodPrecio').value),
+            stock: parseInt(document.getElementById('prodStock').value, 10),
+            stockMinimo: parseInt(document.getElementById('prodStockMin').value, 10)
+        };
+
+        const esEdicion = id > 0;
+        const url = esEdicion ? `/api/productos/${id}` : '/api/productos';
+        const metodo = esEdicion ? 'PUT' : 'POST';
+
+        try {
+            const res = await fetch(url, {
+                method: metodo,
                 headers: {
-                    'X-CSRF-TOKEN': csrfToken
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.status === 401 || res.status === 403) {
+                throw new Error('No tienes permisos de Administrador para modificar productos.');
+            }
+
+            const data = await res.json();
+            if (!res.ok || !data.exito) {
+                const detalle = Array.isArray(data.errores) && data.errores.length > 0
+                    ? data.errores.join(' ')
+                    : (data.mensaje || 'No se pudo guardar el producto.');
+                throw new Error(detalle);
+            }
+
+            const producto = data.dato;
+            if (!producto.categoriaNombre) {
+                producto.categoriaNombre = categoriaNombre;
+            }
+
+            // Actualización parcial del DOM sin recargar toda la página
+            const tbody = document.getElementById('tbodyProductos');
+            const filaVacia = document.getElementById('filaSinProductos');
+            if (filaVacia) filaVacia.remove();
+
+            if (esEdicion) {
+                const fila = document.getElementById(`fila-prod-${producto.id}`);
+                if (fila) {
+                    fila.innerHTML = construirFilaProductoHtml(producto);
                 }
-            })
-            .then(async res => {
+            } else {
+                const nuevaFila = document.createElement('tr');
+                nuevaFila.id = `fila-prod-${producto.id}`;
+                nuevaFila.style.transition = 'all 0.3s ease';
+                nuevaFila.innerHTML = construirFilaProductoHtml(producto);
+                tbody.appendChild(nuevaFila);
+                actualizarContadorProductos(1);
+            }
+
+            cerrarModal();
+            Swal.fire({
+                icon: 'success',
+                title: '¡Completado!',
+                text: data.mensaje,
+                confirmButtonColor: '#1F3A2E',
+                timer: 2200
+            });
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Atención',
+                text: err.message || 'Error de conexión con la API REST.',
+                confirmButtonColor: '#A8432B'
+            });
+        }
+    }
+
+    function eliminarProductoAsincrono(btn) {
+        const id = btn.getAttribute('data-id');
+        const nombre = btn.getAttribute('data-nombre') || '';
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: `Deseas eliminar "${nombre}". Esta acción no se puede deshacer.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#A8432B',
+            cancelButtonColor: '#52655A',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (!result.isConfirmed) return;
+
+            try {
+                const res = await fetch(`/api/productos/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': getCsrfToken() }
+                });
+
                 if (res.status === 401 || res.status === 403 || res.redirected) {
                     throw new Error('No tienes permisos de Administrador para eliminar productos.');
                 }
-                const contentType = res.headers.get('content-type') || '';
-                if (!contentType.includes('application/json')) {
-                    throw new Error('Respuesta inesperada del servidor al eliminar el producto.');
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (data.exito) {
+
+                if (res.status === 204 || res.ok) {
                     const fila = document.getElementById(`fila-prod-${id}`);
                     if (fila) {
                         fila.style.opacity = '0';
                         fila.style.transform = 'translateX(-20px)';
                         setTimeout(() => fila.remove(), 300);
                     }
-                } else {
-                    alert(data.mensaje || 'No se pudo eliminar el producto.');
+                    actualizarContadorProductos(-1);
+                    return;
                 }
-            })
-            .catch(err => alert(err.message || 'Error de red al conectar con la API REST.'));
-        }
+
+                const data = await res.json();
+                throw new Error(data.mensaje || 'No se pudo eliminar el producto.');
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Atención',
+                    text: err.message || 'Error de red al conectar con la API REST.',
+                    confirmButtonColor: '#A8432B'
+                });
+            }
+        });
     }
 </script>

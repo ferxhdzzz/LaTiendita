@@ -65,7 +65,10 @@
                         <td style="text-align: right;">
                             <div style="display: inline-flex; gap: 6px;">
                                 <button type="button" class="btn-action" 
-                                        onclick="editarCategoria(@c.Id, '@c.Nombre', '@(c.Descripcion ?? "")')">
+                                        data-id="@c.Id"
+                                        data-nombre="@c.Nombre"
+                                        data-desc="@(c.Descripcion ?? "")"
+                                        onclick="editarCategoriaBtn(this)">
                                     Editar
                                 </button>
 
@@ -75,7 +78,9 @@
                                 </form>
                                 
                                 <button type="button" class="btn-action" style="color: var(--danger);" 
-                                        onclick="confirmarEliminacion('form-del-cat-@c.Id', '@c.Nombre')">
+                                        data-form="form-del-cat-@c.Id"
+                                        data-nombre="@c.Nombre"
+                                        onclick="confirmarEliminacionBtn(this)">
                                     Eliminar
                                 </button>
                             </div>
@@ -88,6 +93,14 @@
 </div>
 
 <script>
+    function editarCategoriaBtn(btn) {
+        editarCategoria(
+            btn.getAttribute('data-id'),
+            btn.getAttribute('data-nombre') || '',
+            btn.getAttribute('data-desc') || ''
+        );
+    }
+
     function editarCategoria(id, nombre, desc) {
         document.getElementById('catTituloForm').innerText = 'Editar Categoría';
         document.getElementById('catId').value = id;

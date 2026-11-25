@@ -1,25 +1,31 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using LaTiendita.Application.Interfaces;
+using LaTiendita.Infrastructure.Identity;
 
 namespace LaTiendita.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IAuthService _authService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(IAuthService authService)
+        public AccountController(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<AccountController> logger)
         {
-            _authService = authService;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _logger = logger;
         }
 
         // GET: /Account/Login
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
-            // Si ya está autenticado, enviarlo directo al Inicio
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Home");
@@ -34,33 +40,47 @@ namespace LaTiendita.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string correo, string password, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
+
             if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(password))
             {
                 ViewBag.Error = "Debes ingresar tu correo y contraseña.";
                 return View();
             }
 
-            var empleado = await _authService.LoginAsync(correo, password);
-
-            if (empleado == null)
+            var user = await _userManager.FindByEmailAsync(correo.Trim());
+            if (user == null || !user.Activo || await _userManager.IsLockedOutAsync(user))
             {
+                _logger.LogWarning("Intento de inicio de sesión web fallido para {Correo}.", correo);
                 ViewBag.Error = "Correo o contraseña incorrectos, o usuario inactivo.";
                 return View();
             }
 
-            var claims = new List<Claim>
+            var passwordValida = await _userManager.CheckPasswordAsync(user, password);
+            if (!passwordValida)
             {
-                new Claim(ClaimTypes.Name, empleado.Nombre),
-                new Claim(ClaimTypes.Email, empleado.Correo),
-                new Claim(ClaimTypes.Role, empleado.Rol.ToString()),
-                new Claim("EmpleadoId", empleado.Id.ToString())
-            };
+                _logger.LogWarning("Contraseña incorrecta en inicio de sesión web para {Correo}.", correo);
+                ViewBag.Error = "Correo o contraseña incorrectos, o usuario inactivo.";
+                return View();
+            }
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            // Generar ClaimsPrincipal nativo de Identity (incluye roles) y anexar nombre completo y EmpleadoId
+            var principal = await _signInManager.CreateUserPrincipalAsync(user);
+            if (principal.Identity is ClaimsIdentity identity)
+            {
+                var claimNombre = identity.FindFirst(ClaimTypes.Name);
+                if (claimNombre != null) identity.RemoveClaim(claimNombre);
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity));
+                identity.AddClaim(new Claim(ClaimTypes.Name, user.NombreCompleto));
+
+                if (user.EmpleadoId.HasValue)
+                {
+                    identity.AddClaim(new Claim("EmpleadoId", user.EmpleadoId.Value.ToString()));
+                }
+            }
+
+            await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal);
+            _logger.LogInformation("Inicio de sesión web exitoso para {Correo} (UserId: {UserId}).", user.Email, user.Id);
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
@@ -75,7 +95,9 @@ namespace LaTiendita.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var usuario = User.Identity?.Name;
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("Cierre de sesión web para {Usuario}.", usuario);
             return RedirectToAction("Login");
         }
 

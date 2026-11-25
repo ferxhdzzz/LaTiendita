@@ -40,11 +40,18 @@ namespace LaTiendita.Web.Controllers
 
         // POST: /Compra/RegistrarCompraJson
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistrarCompraJson([FromBody] CompraRegistroDto dto)
         {
-            if (dto.Items == null || !dto.Items.Any())
+            if (dto == null || dto.Items == null || !dto.Items.Any())
             {
                 return Json(new { exito = false, mensaje = "El detalle de compra está vacío. Agrega al menos un producto." });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var primerError = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault();
+                return Json(new { exito = false, mensaje = primerError ?? "Los datos de la compra no son válidos." });
             }
 
             int? empleadoId = null;

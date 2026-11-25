@@ -4,6 +4,8 @@
     var productos = ViewBag.Productos as IEnumerable<LaTiendita.Domain.Entities.Producto> ?? new List<LaTiendita.Domain.Entities.Producto>();
 }
 
+@Html.AntiForgeryToken()
+
 <style>
     .pos-grid {
         display: grid;
@@ -94,7 +96,7 @@
                          data-codigo="P-@p.Id.ToString("D4")"
                          data-precio="@precioInvariante" 
                          data-stock="@p.Stock"
-                         onclick="agregarAlTicket(@p.Id, '@p.Nombre', @precioInvariante, @p.Stock)">
+                         onclick="agregarAlTicketDesdeElemento(this)">
                         <div>
                             <div style="font-weight: 500; font-size: 0.95rem; color: var(--ink);">@p.Nombre</div>
                             <div style="font-size: 0.78rem; color: var(--ink-faint); margin-top: 2px;">
@@ -215,6 +217,14 @@
 <script>
     let ticket = [];
 
+    function agregarAlTicketDesdeElemento(el) {
+        const id = parseInt(el.getAttribute('data-id'), 10);
+        const nombre = el.getAttribute('data-nombre') || '';
+        const precio = parseFloat(el.getAttribute('data-precio'));
+        const stockMax = parseInt(el.getAttribute('data-stock'), 10);
+        agregarAlTicket(id, nombre, precio, stockMax);
+    }
+
     function agregarAlTicket(id, nombre, precio, stockMax) {
         if (stockMax <= 0) {
             Swal.fire({
@@ -305,7 +315,7 @@
             html += `
                 <div class="ticket-item-row">
                     <div>
-                        <div style="font-weight: 500; font-size: 0.95rem; color: var(--ink);">${item.nombre}</div>
+                        <div style="font-weight: 500; font-size: 0.95rem; color: var(--ink);">${escapeHtml(item.nombre)}</div>
                         <div style="font-size: 0.8rem; color: var(--ink-soft);">$${item.precio.toFixed(2)} c/u</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
@@ -358,7 +368,10 @@
 
                 fetch('/Venta/RegistrarVentaJson', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
                     body: JSON.stringify(payload)
                 })
                 .then(res => res.json())

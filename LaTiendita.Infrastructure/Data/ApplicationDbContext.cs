@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using LaTiendita.Domain.Entities;
+using LaTiendita.Infrastructure.Identity;
 
 namespace LaTiendita.Infrastructure.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -35,6 +37,20 @@ namespace LaTiendita.Infrastructure.Data
 
             modelBuilder.Entity<Compra>().Property(c => c.Total).HasPrecision(18, 2);
             modelBuilder.Entity<DetalleCompra>().Property(d => d.CostoUnitario).HasPrecision(18, 2);
+
+            // Evitar borrado en cascada de productos al eliminar una categoría
+            modelBuilder.Entity<Producto>()
+                .HasOne(p => p.Categoria)
+                .WithMany(c => c.Productos)
+                .HasForeignKey(p => p.CategoriaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación usuario de Identity -> Empleado
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Empleado)
+                .WithMany()
+                .HasForeignKey(u => u.EmpleadoId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Relación Venta -> Detalles (Eliminación en cascada)
             modelBuilder.Entity<Venta>()

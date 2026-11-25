@@ -1,4 +1,5 @@
-﻿using LaTiendita.Application.DTOs;
+﻿using Microsoft.Extensions.Logging;
+using LaTiendita.Application.DTOs;
 using LaTiendita.Application.Interfaces;
 using LaTiendita.Domain.Entities;
 using LaTiendita.Domain.Interfaces;
@@ -8,12 +9,12 @@ namespace LaTiendita.Application.Services
     public class EmpleadoService : IEmpleadoService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IAuthService _authService;
+        private readonly ILogger<EmpleadoService> _logger;
 
-        public EmpleadoService(IUnitOfWork unitOfWork, IAuthService authService)
+        public EmpleadoService(IUnitOfWork unitOfWork, ILogger<EmpleadoService> logger)
         {
             _unitOfWork = unitOfWork;
-            _authService = authService;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Empleado>> GetAllAsync()
@@ -26,33 +27,30 @@ namespace LaTiendita.Application.Services
             return await _unitOfWork.Empleados.GetByIdAsync(id);
         }
 
-        public async Task<Empleado?> AutenticarAsync(string correo, string password)
+        public async Task<Empleado?> CrearAsync(EmpleadoDto dto)
         {
-            return await _authService.LoginAsync(correo, password);
-        }
-
-        public async Task<bool> CrearAsync(EmpleadoDto dto)
-        {
-            if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 6)
-                return false;
-
-            // Validación: Correo no duplicado
             var existentes = await _unitOfWork.Empleados.FindAsync(e => e.Correo.ToLower() == dto.Correo.ToLower() && e.Activo);
-            if (existentes.Any()) return false;
+            if (existentes.Any()) return null;
 
             var empleado = new Empleado
             {
-                Nombre = dto.Nombre,
-                Telefono = dto.Telefono,
-                Correo = dto.Correo,
-                PasswordHash = _authService.HashPassword(dto.Password),
+                Nombre = dto.Nombre.Trim(),
+                Telefono = dto.Telefono.Trim(),
+                Correo = dto.Correo.Trim(),
+                PasswordHash = "IDENTITY_MANAGED",
                 Rol = dto.Rol,
                 Activo = true,
                 FechaRegistro = DateTime.UtcNow
             };
 
             await _unitOfWork.Empleados.AddAsync(empleado);
-            return await _unitOfWork.SaveChangesAsync() > 0;
+            var guardado = await _unitOfWork.SaveChangesAsync() > 0;
+            if (!guardado) return null;
+
+            _logger.LogInformation("Auditoría Empleado: registrado empleado {EmpleadoId} ({Correo}) con rol {Rol}.",
+                empleado.Id, empleado.Correo, empleado.Rol);
+
+            return empleado;
         }
 
         public async Task<bool> ActualizarAsync(EmpleadoDto dto)
@@ -60,25 +58,25 @@ namespace LaTiendita.Application.Services
             var empleado = await _unitOfWork.Empleados.GetByIdAsync(dto.Id);
             if (empleado == null) return false;
 
-            // Validación: Correo no duplicado en otro empleado activo
             var duplicados = await _unitOfWork.Empleados.FindAsync(e =>
                 e.Id != dto.Id && e.Correo.ToLower() == dto.Correo.ToLower() && e.Activo);
             if (duplicados.Any()) return false;
 
-            empleado.Nombre = dto.Nombre;
-            empleado.Telefono = dto.Telefono;
-            empleado.Correo = dto.Correo;
+            empleado.Nombre = dto.Nombre.Trim();
+            empleado.Telefono = dto.Telefono.Trim();
+            empleado.Correo = dto.Correo.Trim();
             empleado.Rol = dto.Rol;
 
-            // Si se envió una nueva contraseña, actualizarla
-            if (!string.IsNullOrWhiteSpace(dto.Password))
+            _unitOfWork.Empleados.Update(empleado);
+            var actualizado = await _unitOfWork.SaveChangesAsync() > 0;
+
+            if (actualizado)
             {
-                if (dto.Password.Length < 6) return false;
-                empleado.PasswordHash = _authService.HashPassword(dto.Password);
+                _logger.LogInformation("Auditoría Empleado: actualizado empleado {EmpleadoId} ({Correo}) con rol {Rol}.",
+                    empleado.Id, empleado.Correo, empleado.Rol);
             }
 
-            _unitOfWork.Empleados.Update(empleado);
-            return await _unitOfWork.SaveChangesAsync() > 0;
+            return actualizado;
         }
 
         public async Task<bool> EliminarAsync(int id)
@@ -86,10 +84,17 @@ namespace LaTiendita.Application.Services
             var empleado = await _unitOfWork.Empleados.GetByIdAsync(id);
             if (empleado == null) return false;
 
-            // Borrado lógico para no romper integridad referencial con ventas anteriores
             empleado.Activo = false;
             _unitOfWork.Empleados.Update(empleado);
-            return await _unitOfWork.SaveChangesAsync() > 0;
+            var eliminado = await _unitOfWork.SaveChangesAsync() > 0;
+
+            if (eliminado)
+            {
+                _logger.LogInformation("Auditoría Empleado: desactivado empleado {EmpleadoId} ({Correo}).",
+                    empleado.Id, empleado.Correo);
+            }
+
+            return eliminado;
         }
     }
 }
