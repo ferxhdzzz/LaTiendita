@@ -15,6 +15,10 @@ secrets.json
 appsettings.Local.json
 appsettings.*.local.json
 
+## Logs generados por Serilog
+Logs/
+*.log
+
 ## macOS / OS
 .DS_Store
 Thumbs.db

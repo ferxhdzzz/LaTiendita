@@ -1,4 +1,5 @@
-﻿using LaTiendita.Application.DTOs;
+﻿using Microsoft.Extensions.Logging;
+using LaTiendita.Application.DTOs;
 using LaTiendita.Application.Interfaces;
 using LaTiendita.Domain.Entities;
 using LaTiendita.Domain.Enums;
@@ -9,10 +10,12 @@ namespace LaTiendita.Application.Services
     public class VentaService : IVentaService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<VentaService> _logger;
 
-        public VentaService(IUnitOfWork unitOfWork)
+        public VentaService(IUnitOfWork unitOfWork, ILogger<VentaService> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Venta>> GetAllAsync()
@@ -96,11 +99,15 @@ namespace LaTiendita.Application.Services
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();
 
+                _logger.LogInformation("Auditoría Venta: registrada venta #{VentaId} por total {Total} con {Items} productos (EmpleadoId: {EmpleadoId}).",
+                    venta.Id, venta.Total, venta.Detalles.Count, dto.EmpleadoId);
+
                 return (true, "Venta registrada con éxito.");
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
+                _logger.LogError(ex, "Error al procesar venta para EmpleadoId {EmpleadoId}.", dto.EmpleadoId);
                 return (false, $"Error al procesar la venta: {ex.Message}");
             }
         }
