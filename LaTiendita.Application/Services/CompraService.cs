@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using LaTiendita.Application.DTOs;
 using LaTiendita.Application.Interfaces;
 using LaTiendita.Domain.Entities;
@@ -9,10 +10,12 @@ namespace LaTiendita.Application.Services
     public class CompraService : ICompraService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<CompraService> _logger;
 
-        public CompraService(IUnitOfWork unitOfWork)
+        public CompraService(IUnitOfWork unitOfWork, ILogger<CompraService> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Compra>> GetAllAsync()
@@ -98,11 +101,15 @@ namespace LaTiendita.Application.Services
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();
 
+                _logger.LogInformation("Auditoría Compra: registrada compra #{CompraId} por total {Total} con {Items} lotes (ProveedorId: {ProveedorId}, EmpleadoId: {EmpleadoId}).",
+                    compra.Id, compra.Total, compra.Detalles.Count, dto.ProveedorId, dto.EmpleadoId);
+
                 return (true, "Compra registrada e inventario actualizado con éxito.");
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
+                _logger.LogError(ex, "Error al registrar compra para EmpleadoId {EmpleadoId}.", dto.EmpleadoId);
                 return (false, $"Error al registrar la compra: {ex.Message}");
             }
         }
