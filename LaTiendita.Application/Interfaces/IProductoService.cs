@@ -8,8 +8,8 @@ namespace LaTiendita.Application.Interfaces
         Task<IEnumerable<Producto>> GetAllAsync();
         Task<IEnumerable<Producto>> GetStockBajoAsync();
         Task<Producto?> GetByIdAsync(int id);
-        Task<bool> CrearAsync(ProductoDto dto);
-        Task<bool> ActualizarAsync(ProductoDto dto);
+        Task<Producto?> CrearAsync(ProductoDto dto);
+        Task<Producto?> ActualizarAsync(ProductoDto dto);
         Task<bool> EliminarAsync(int id);
     }
 }

@@ -20,6 +20,14 @@ namespace LaTiendita.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Producto?> GetByIdConCategoriaAsync(int id)
+        {
+            return await _context.Productos
+                .Include(p => p.Categoria)
+                .Include(p => p.Proveedor)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
         public async Task<IEnumerable<Producto>> GetProductosStockBajoAsync()
         {
             return await _context.Productos

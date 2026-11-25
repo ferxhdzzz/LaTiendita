@@ -1,8 +1,10 @@
+using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using LaTiendita.Application.Interfaces;
 using LaTiendita.Application.Services;
 using LaTiendita.Domain.Interfaces;
@@ -130,6 +132,43 @@ builder.Services.AddAntiforgery(options =>
 
 builder.Services.AddControllersWithViews();
 
+// Documentación OpenAPI / Swagger con comentarios XML y autenticación Bearer
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "LaTiendita API",
+        Version = "v1",
+        Description = "API RESTful de autenticación JWT y gestión de productos para La Tiendita."
+    });
+
+    var xmlWeb = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+    if (File.Exists(xmlWeb))
+    {
+        options.IncludeXmlComments(xmlWeb);
+    }
+
+    var xmlApp = Path.Combine(AppContext.BaseDirectory, "LaTiendita.Application.xml");
+    if (File.Exists(xmlApp))
+    {
+        options.IncludeXmlComments(xmlApp);
+    }
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Ingresa el token JWT obtenido en POST /api/auth/login"
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
+    });
+});
+
 var app = builder.Build();
 
 // Migraciones y datos base (Identity roles, administrador y categorías)
@@ -138,7 +177,16 @@ using (var scope = app.Services.CreateScope())
     await DbInitializer.InitializeAsync(scope.ServiceProvider);
 }
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "LaTiendita API v1");
+        options.RoutePrefix = "swagger";
+    });
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();

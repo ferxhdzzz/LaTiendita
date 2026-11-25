@@ -56,6 +56,7 @@ namespace LaTiendita.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Guardar(ProductoDto dto)
         {
@@ -73,12 +74,12 @@ namespace LaTiendita.Web.Controllers
             bool exito;
             if (dto.Id > 0)
             {
-                exito = await _productoService.ActualizarAsync(dto);
+                exito = await _productoService.ActualizarAsync(dto) != null;
                 TempData[exito ? "Exito" : "Error"] = exito ? "Producto actualizado correctamente." : "Error al actualizar.";
             }
             else
             {
-                exito = await _productoService.CrearAsync(dto);
+                exito = await _productoService.CrearAsync(dto) != null;
                 TempData[exito ? "Exito" : "Error"] = exito ? "Producto agregado al catálogo." : "Error al registrar.";
             }
 
