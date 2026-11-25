@@ -14,35 +14,56 @@ namespace LaTiendita.Application.Services
         private readonly string _audience;
         private readonly int _durationInHours;
 
+        public int DurationInHours => _durationInHours;
+
         public JwtService(
             string secretKey,
             string issuer = "LaTienditaApi",
             string audience = "LaTienditaClients",
             int durationInHours = 8)
         {
-            if (string.IsNullOrWhiteSpace(secretKey))
-                throw new ArgumentException("La clave secreta JWT es obligatoria.", nameof(secretKey));
+            if (string.IsNullOrWhiteSpace(secretKey) || Encoding.UTF8.GetByteCount(secretKey) < 32)
+                throw new ArgumentException("La clave secreta JWT es obligatoria y debe tener al menos 32 bytes.", nameof(secretKey));
 
             _secretKey = secretKey;
             _issuer = issuer;
             _audience = audience;
-            _durationInHours = durationInHours;
+            _durationInHours = durationInHours > 0 ? durationInHours : 8;
         }
 
         public string GenerarToken(Empleado empleado)
         {
+            return GenerarToken(
+                empleado.Id.ToString(),
+                empleado.Nombre,
+                empleado.Correo,
+                new[] { empleado.Rol.ToString() },
+                empleado.Id);
+        }
+
+        public string GenerarToken(string userId, string nombre, string correo, IEnumerable<string> roles, int? empleadoId = null)
+        {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            // Claims: información que viaja protegida dentro del Token JWT
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, empleado.Id.ToString()),
-                new Claim(ClaimTypes.Name, empleado.Nombre),
-                new Claim(ClaimTypes.Email, empleado.Correo),
-                new Claim(ClaimTypes.Role, empleado.Rol.ToString()),
-                new Claim("UsuarioId", empleado.Id.ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Name, nombre),
+                new Claim(ClaimTypes.Email, correo),
+                new Claim("UsuarioId", userId)
             };
+
+            if (empleadoId.HasValue)
+            {
+                claims.Add(new Claim("EmpleadoId", empleadoId.Value.ToString()));
+            }
+
+            foreach (var rol in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, rol));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: _issuer,

@@ -7,8 +7,7 @@ namespace LaTiendita.Application.Interfaces
     {
         Task<IEnumerable<Empleado>> GetAllAsync();
         Task<Empleado?> GetByIdAsync(int id);
-        Task<Empleado?> AutenticarAsync(string correo, string password);
-        Task<bool> CrearAsync(EmpleadoDto dto);
+        Task<Empleado?> CrearAsync(EmpleadoDto dto);
         Task<bool> ActualizarAsync(EmpleadoDto dto);
         Task<bool> EliminarAsync(int id);
     }
