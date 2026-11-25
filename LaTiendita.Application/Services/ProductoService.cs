@@ -32,7 +32,7 @@ namespace LaTiendita.Application.Services
         public async Task<bool> CrearAsync(ProductoDto dto)
         {
             // Validaciones de datos
-            if (dto.Precio < 0 || dto.Costo < 0) return false;
+            if (dto.Precio <= 0 || dto.Costo <= 0 || dto.Stock < 0 || dto.StockMinimo < 1) return false;
 
             var producto = new Producto
             {
@@ -52,6 +52,8 @@ namespace LaTiendita.Application.Services
 
         public async Task<bool> ActualizarAsync(ProductoDto dto)
         {
+            if (dto.Precio <= 0 || dto.Costo <= 0 || dto.Stock < 0 || dto.StockMinimo < 1) return false;
+
             var producto = await _unitOfWork.Productos.GetByIdAsync(dto.Id);
             if (producto == null) return false;
 
@@ -61,7 +63,10 @@ namespace LaTiendita.Application.Services
             producto.Stock = dto.Stock;
             producto.StockMinimo = dto.StockMinimo;
             producto.CategoriaId = dto.CategoriaId;
-            producto.ProveedorId = dto.ProveedorId;
+            if (dto.ProveedorId.HasValue)
+            {
+                producto.ProveedorId = dto.ProveedorId;
+            }
 
             _unitOfWork.Productos.Update(producto);
             await _unitOfWork.SaveChangesAsync();

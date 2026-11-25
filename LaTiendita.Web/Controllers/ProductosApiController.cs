@@ -19,27 +19,58 @@ namespace LaTiendita.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + CookieAuthenticationDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll()
         {
-            var productos = await _productoService.GetAllAsync();
+            var productos = (await _productoService.GetAllAsync())
+                .Select(p => new ProductoDto
+                {
+                    Id = p.Id,
+                    Nombre = p.Nombre,
+                    Costo = p.Costo,
+                    Precio = p.Precio,
+                    Stock = p.Stock,
+                    StockMinimo = p.StockMinimo,
+                    CategoriaId = p.CategoriaId,
+                    CategoriaNombre = p.Categoria?.Nombre,
+                    ProveedorId = p.ProveedorId,
+                    ProveedorNombre = p.Proveedor?.Nombre
+                })
+                .ToList();
+
             return Ok(new
             {
                 exito = true,
-                total = productos.Count(),
+                total = productos.Count,
                 datos = productos
             });
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + CookieAuthenticationDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetById(int id)
         {
             var producto = await _productoService.GetByIdAsync(id);
-            if (producto == null)
+            if (producto == null || !producto.Activo)
             {
                 return NotFound(new { exito = false, mensaje = $"Producto con ID {id} no encontrado." });
             }
 
-            return Ok(new { exito = true, dato = producto });
+            var dto = new ProductoDto
+            {
+                Id = producto.Id,
+                Nombre = producto.Nombre,
+                Costo = producto.Costo,
+                Precio = producto.Precio,
+                Stock = producto.Stock,
+                StockMinimo = producto.StockMinimo,
+                CategoriaId = producto.CategoriaId,
+                CategoriaNombre = producto.Categoria?.Nombre,
+                ProveedorId = producto.ProveedorId,
+                ProveedorNombre = producto.Proveedor?.Nombre
+            };
+
+            return Ok(new { exito = true, dato = dto });
         }
 
         [HttpPost]

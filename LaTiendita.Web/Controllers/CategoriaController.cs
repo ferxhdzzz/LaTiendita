@@ -54,8 +54,8 @@ namespace LaTiendita.Web.Controllers
                 var cat = await _unitOfWork.Categorias.GetByIdAsync(id);
                 if (cat != null)
                 {
-                    // Validar si hay productos usando esta categoría
-                    var tieneProductos = (await _unitOfWork.Productos.FindAsync(p => p.CategoriaId == id && p.Activo)).Any();
+                    // Validar si hay productos asociados (activos o inactivos) para evitar borrado en cascada
+                    var tieneProductos = (await _unitOfWork.Productos.FindAsync(p => p.CategoriaId == id)).Any();
 
                     if (tieneProductos)
                     {

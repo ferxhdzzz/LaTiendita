@@ -172,6 +172,7 @@
                                         data-id="@p.Id"
                                         data-nombre="@p.Nombre"
                                         data-catid="@p.CategoriaId"
+                                        data-provid="@(p.ProveedorId?.ToString() ?? "")"
                                         data-costo="@p.Costo.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                         data-precio="@p.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                         data-stock="@p.Stock"
@@ -180,10 +181,13 @@
                                     Editar
                                 </button>
 
-                                <button type="button" class="btn-action" style="color: var(--danger);" 
-                                        onclick="eliminarProductoAsincrono(@p.Id, '@p.Nombre')">
-                                    Eliminar
-                                </button>
+                                @if (User.IsInRole("Administrador"))
+                                {
+                                    <button type="button" class="btn-action" style="color: var(--danger);" 
+                                            onclick="eliminarProductoAsincrono(@p.Id, '@p.Nombre')">
+                                        Eliminar
+                                    </button>
+                                }
                             </div>
                         </td>
                     </tr>
@@ -202,11 +206,12 @@
         <form asp-action="Guardar" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" id="prodId" name="Id" value="0" />
+            <input type="hidden" id="prodProveedorId" name="ProveedorId" value="" />
 
             <div class="form-group" style="margin-bottom: 14px;">
                 <label>Nombre del producto *</label>
                 <input type="text" id="prodNombre" name="Nombre" class="form-control-custom" 
-                       placeholder="Ej. Agua purificada 600 ml" minlength="2" maxlength="80" required />
+                       placeholder="Ej. Agua purificada 600 ml" minlength="3" maxlength="100" required />
             </div>
 
             <div class="form-group" style="margin-bottom: 14px;">
@@ -222,12 +227,12 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
                 <div class="form-group">
                     <label>Costo de compra ($) *</label>
-                    <input type="number" step="0.01" min="0.01" max="999999" id="prodCosto" name="Costo" 
+                    <input type="number" step="0.01" min="0.01" max="100000" id="prodCosto" name="Costo" 
                            class="form-control-custom" placeholder="0.30" required />
                 </div>
                 <div class="form-group">
                     <label>Precio de venta ($) *</label>
-                    <input type="number" step="0.01" min="0.01" max="999999" id="prodPrecio" name="Precio" 
+                    <input type="number" step="0.01" min="0.01" max="100000" id="prodPrecio" name="Precio" 
                            class="form-control-custom" placeholder="0.50" required />
                 </div>
             </div>
@@ -235,12 +240,12 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
                 <div class="form-group">
                     <label>Stock actual *</label>
-                    <input type="number" step="1" min="0" max="999999" id="prodStock" name="Stock" 
+                    <input type="number" step="1" min="0" max="100000" id="prodStock" name="Stock" 
                            class="form-control-custom" value="10" required />
                 </div>
                 <div class="form-group">
                     <label>Stock mínimo (Alerta) *</label>
-                    <input type="number" step="1" min="1" max="99999" id="prodStockMin" name="StockMinimo" 
+                    <input type="number" step="1" min="1" max="10000" id="prodStockMin" name="StockMinimo" 
                            class="form-control-custom" value="5" required />
                 </div>
             </div>
@@ -257,6 +262,7 @@
     function abrirModalNuevo() {
         document.getElementById('modalTitulo').innerText = 'Agregar Producto';
         document.getElementById('prodId').value = '0';
+        document.getElementById('prodProveedorId').value = '';
         document.getElementById('prodNombre').value = '';
         document.getElementById('prodCosto').value = '';
         document.getElementById('prodPrecio').value = '';
@@ -268,6 +274,7 @@
     function abrirModalEditar(btn) {
         document.getElementById('modalTitulo').innerText = 'Editar Producto';
         document.getElementById('prodId').value = btn.getAttribute('data-id');
+        document.getElementById('prodProveedorId').value = btn.getAttribute('data-provid') || '';
         document.getElementById('prodNombre').value = btn.getAttribute('data-nombre');
         document.getElementById('prodCategoria').value = btn.getAttribute('data-catid');
         document.getElementById('prodCosto').value = btn.getAttribute('data-costo');
@@ -291,7 +298,16 @@
                     'X-CSRF-TOKEN': csrfToken
                 }
             })
-            .then(res => res.json())
+            .then(async res => {
+                if (res.status === 401 || res.status === 403 || res.redirected) {
+                    throw new Error('No tienes permisos de Administrador para eliminar productos.');
+                }
+                const contentType = res.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('Respuesta inesperada del servidor al eliminar el producto.');
+                }
+                return res.json();
+            })
             .then(data => {
                 if (data.exito) {
                     const fila = document.getElementById(`fila-prod-${id}`);
@@ -304,7 +320,7 @@
                     alert(data.mensaje || 'No se pudo eliminar el producto.');
                 }
             })
-            .catch(() => alert('Error de red al conectar con la API REST.'));
+            .catch(err => alert(err.message || 'Error de red al conectar con la API REST.'));
         }
     }
 </script>

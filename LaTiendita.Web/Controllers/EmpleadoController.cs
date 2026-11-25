@@ -54,11 +54,17 @@ namespace LaTiendita.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            if (dto.Id == 0 && (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 6))
+            {
+                TempData["Error"] = "La contraseña es obligatoria y debe tener al menos 6 caracteres.";
+                return RedirectToAction(nameof(Index));
+            }
+
             bool exito;
             if (dto.Id > 0)
             {
                 exito = await _empleadoService.ActualizarAsync(dto);
-                TempData[exito ? "Exito" : "Error"] = exito ? "Empleado actualizado con éxito." : "Error al actualizar empleado.";
+                TempData[exito ? "Exito" : "Error"] = exito ? "Empleado actualizado con éxito." : "Error al actualizar empleado (¿correo duplicado o contraseña muy corta?).";
             }
             else
             {
@@ -74,6 +80,13 @@ namespace LaTiendita.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Eliminar(int id)
         {
+            var empClaim = User.FindFirst("EmpleadoId")?.Value;
+            if (int.TryParse(empClaim, out int empleadoActualId) && empleadoActualId == id)
+            {
+                TempData["Error"] = "No puedes desactivar tu propia cuenta mientras tienes la sesión iniciada.";
+                return RedirectToAction(nameof(Index));
+            }
+
             await _empleadoService.EliminarAsync(id);
             TempData["Exito"] = "Empleado desactivado correctamente.";
             return RedirectToAction(nameof(Index));

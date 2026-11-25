@@ -33,6 +33,9 @@ namespace LaTiendita.Application.Services
 
         public async Task<bool> CrearAsync(EmpleadoDto dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 6)
+                return false;
+
             // Validación: Correo no duplicado
             var existentes = await _unitOfWork.Empleados.FindAsync(e => e.Correo.ToLower() == dto.Correo.ToLower() && e.Activo);
             if (existentes.Any()) return false;
@@ -42,7 +45,7 @@ namespace LaTiendita.Application.Services
                 Nombre = dto.Nombre,
                 Telefono = dto.Telefono,
                 Correo = dto.Correo,
-                PasswordHash = _authService.HashPassword(dto.Password ?? "123456"),
+                PasswordHash = _authService.HashPassword(dto.Password),
                 Rol = dto.Rol,
                 Activo = true,
                 FechaRegistro = DateTime.UtcNow
@@ -57,6 +60,11 @@ namespace LaTiendita.Application.Services
             var empleado = await _unitOfWork.Empleados.GetByIdAsync(dto.Id);
             if (empleado == null) return false;
 
+            // Validación: Correo no duplicado en otro empleado activo
+            var duplicados = await _unitOfWork.Empleados.FindAsync(e =>
+                e.Id != dto.Id && e.Correo.ToLower() == dto.Correo.ToLower() && e.Activo);
+            if (duplicados.Any()) return false;
+
             empleado.Nombre = dto.Nombre;
             empleado.Telefono = dto.Telefono;
             empleado.Correo = dto.Correo;
@@ -65,6 +73,7 @@ namespace LaTiendita.Application.Services
             // Si se envió una nueva contraseña, actualizarla
             if (!string.IsNullOrWhiteSpace(dto.Password))
             {
+                if (dto.Password.Length < 6) return false;
                 empleado.PasswordHash = _authService.HashPassword(dto.Password);
             }
 

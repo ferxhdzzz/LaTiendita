@@ -59,9 +59,14 @@ namespace LaTiendita.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Guardar(ProductoDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.Precio < 0)
+            if (!ModelState.IsValid)
             {
-                TempData["Error"] = "El nombre y el precio de venta son obligatorios.";
+                var primerError = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m));
+
+                TempData["Error"] = primerError ?? "Verifica los datos ingresados del producto.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -82,6 +87,7 @@ namespace LaTiendita.Web.Controllers
 
         // POST: /Producto/Eliminar
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Eliminar(int id)
         {

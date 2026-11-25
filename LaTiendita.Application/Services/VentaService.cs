@@ -45,6 +45,12 @@ namespace LaTiendita.Application.Services
 
                 foreach (var item in dto.Items)
                 {
+                    if (item.Cantidad <= 0)
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return (false, "La cantidad de cada producto debe ser mayor a cero.");
+                    }
+
                     var producto = await _unitOfWork.Productos.GetByIdAsync(item.ProductoId);
                     if (producto == null || !producto.Activo)
                     {
@@ -65,7 +71,7 @@ namespace LaTiendita.Application.Services
                     {
                         ProductoId = producto.Id,
                         Cantidad = item.Cantidad,
-                        PrecioUnitario = item.PrecioUnitario > 0 ? item.PrecioUnitario : producto.Precio,
+                        PrecioUnitario = producto.Precio,
                         CostoUnitario = producto.Costo
                     };
 

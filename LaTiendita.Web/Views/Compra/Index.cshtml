@@ -46,7 +46,7 @@
                     <option value="">Selecciona un producto...</option>
                     @foreach (var p in productos)
                     {
-                        <!option value="@p.Id" data-costo="@p.Costo" data-stock="@p.Stock" data-nombre="@p.Nombre">
+                        <!option value="@p.Id" data-costo="@p.Costo.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-stock="@p.Stock" data-nombre="@p.Nombre">
                             P-@p.Id.ToString("D4") · @p.Nombre (hay @p.Stock)
                         </!option>
                     }
@@ -158,7 +158,7 @@
                                             <span>@($"{d.Cantidad}x {d.Producto?.Nombre}")</span>
                                             @if (d.FechaVencimiento.HasValue)
                                             {
-                                                var dias = (d.FechaVencimiento.Value.Date - DateTime.UtcNow.Date).TotalDays;
+                                                var dias = (d.FechaVencimiento.Value.Date - DateTime.Today).TotalDays;
                                                 var bgBadge = dias < 0 ? "var(--danger-bg)" : (dias <= 15 ? "var(--warning-bg)" : "var(--surface-2)");
                                                 var colBadge = dias < 0 ? "var(--danger)" : (dias <= 15 ? "var(--warning)" : "var(--ink-soft)");
                                                 var textoVence = dias < 0

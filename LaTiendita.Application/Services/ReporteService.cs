@@ -16,12 +16,12 @@ namespace LaTiendita.Application.Services
 
         private static DateTime ObtenerFechaInicio(string rango)
         {
-            var ahora = DateTime.UtcNow;
+            var hoyLocal = DateTime.Today;
             return (rango ?? "hoy").ToLower() switch
             {
-                "hoy" => ahora.Date,
-                "semana" => ahora.Date.AddDays(-7),
-                "mes" => new DateTime(ahora.Year, ahora.Month, 1),
+                "hoy" => hoyLocal.ToUniversalTime(),
+                "semana" => hoyLocal.AddDays(-7).ToUniversalTime(),
+                "mes" => new DateTime(hoyLocal.Year, hoyLocal.Month, 1, 0, 0, 0, DateTimeKind.Local).ToUniversalTime(),
                 _ => DateTime.MinValue // "todo"
             };
         }

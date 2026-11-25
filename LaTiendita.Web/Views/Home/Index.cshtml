@@ -148,7 +148,7 @@
                     @foreach (var lote in lotesPorVencer)
                     {
                         var fechaVence = lote.FechaVencimiento!.Value.Date;
-                        var diasRestantes = (int)(fechaVence - DateTime.UtcNow.Date).TotalDays;
+                        var diasRestantes = (int)(fechaVence - DateTime.Today).TotalDays;
                         var esCritico = diasRestantes <= 3;
                         var bgAlerta = esCritico ? "var(--danger-bg)" : "var(--warning-bg)";
                         var colAlerta = esCritico ? "var(--danger)" : "var(--warning)";

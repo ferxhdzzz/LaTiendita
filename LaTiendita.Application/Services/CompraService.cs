@@ -46,19 +46,27 @@ namespace LaTiendita.Application.Services
 
                 foreach (var item in dto.Items)
                 {
-                    var producto = await _unitOfWork.Productos.GetByIdAsync(item.ProductoId);
-                    if (producto == null)
+                    if (item.Cantidad <= 0)
                     {
                         await _unitOfWork.RollbackTransactionAsync();
-                        return (false, $"El producto con ID {item.ProductoId} no existe.");
+                        return (false, "La cantidad de cada producto debe ser mayor a cero.");
+                    }
+
+                    if (item.CostoUnitario <= 0)
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return (false, "El costo unitario de cada producto debe ser mayor a cero.");
+                    }
+
+                    var producto = await _unitOfWork.Productos.GetByIdAsync(item.ProductoId);
+                    if (producto == null || !producto.Activo)
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return (false, $"El producto con ID {item.ProductoId} no existe o no está activo.");
                     }
 
                     producto.Stock += item.Cantidad;
-
-                    if (item.CostoUnitario > 0)
-                    {
-                        producto.Costo = item.CostoUnitario;
-                    }
+                    producto.Costo = item.CostoUnitario;
                     _unitOfWork.Productos.Update(producto);
 
                     var detalle = new DetalleCompra

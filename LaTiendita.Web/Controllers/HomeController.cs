@@ -8,26 +8,24 @@ namespace LaTiendita.Web.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly IVentaService _ventaService;
         private readonly IProductoService _productoService;
         private readonly IUnitOfWork _unitOfWork;
 
         public HomeController(
-            IVentaService ventaService,
             IProductoService productoService,
             IUnitOfWork unitOfWork)
         {
-            _ventaService = ventaService;
             _productoService = productoService;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<IActionResult> Index()
         {
-            var hoy = DateTime.UtcNow.Date;
+            var hoyLocal = DateTime.Today;
+            var inicioHoyUtc = hoyLocal.ToUniversalTime();
+            var finHoyUtc = hoyLocal.AddDays(1).ToUniversalTime();
 
-            var ventasHoy = (await _ventaService.GetAllAsync())
-                .Where(v => v.Fecha >= hoy)
+            var ventasHoy = (await _unitOfWork.Ventas.GetVentasPorRangoFechaAsync(inicioHoyUtc, finHoyUtc.AddTicks(-1)))
                 .ToList();
 
             ViewBag.TotalVentasHoy = ventasHoy.Sum(v => v.Total);
@@ -42,7 +40,7 @@ namespace LaTiendita.Web.Controllers
 
             // Lotes vencidos o próximos a vencer (próximos 30 días)
             var compras = await _unitOfWork.Compras.GetComprasConDetallesAsync();
-            var fechaLimiteVencimiento = hoy.AddDays(30);
+            var fechaLimiteVencimiento = hoyLocal.AddDays(30);
             var lotesPorVencer = compras
                 .SelectMany(c => c.Detalles)
                 .Where(d => d.FechaVencimiento.HasValue
