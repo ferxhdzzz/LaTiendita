@@ -30,11 +30,18 @@ namespace LaTiendita.Web.Controllers
 
         // POST: /Venta/RegistrarVentaJson (Procesa el Ticket completo con múltiples productos)
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistrarVentaJson([FromBody] VentaRegistroDto dto)
         {
-            if (dto.Items == null || !dto.Items.Any())
+            if (dto == null || dto.Items == null || !dto.Items.Any())
             {
                 return Json(new { exito = false, mensaje = "El ticket está vacío. Agrega al menos un producto." });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var primerError = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault();
+                return Json(new { exito = false, mensaje = primerError ?? "Los datos de la venta no son válidos." });
             }
 
             int? empleadoId = null;

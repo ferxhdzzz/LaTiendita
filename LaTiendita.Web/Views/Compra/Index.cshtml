@@ -5,6 +5,8 @@
     var proveedores = ViewBag.Proveedores as IEnumerable<LaTiendita.Domain.Entities.Proveedor> ?? new List<LaTiendita.Domain.Entities.Proveedor>();
 }
 
+@Html.AntiForgeryToken()
+
 <style>
     .compra-grid {
         display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; margin-bottom: 32px;
@@ -291,7 +293,7 @@
             total += item.subtotal;
             html += `
                 <tr>
-                    <td style="font-weight: 500;">${item.nombre}</td>
+                    <td style="font-weight: 500;">${escapeHtml(item.nombre)}</td>
                     <td>${item.cantidad}</td>
                     <td style="color: var(--ink-soft);">${item.vence}</td>
                     <td style="font-weight: 600;">$${item.subtotal.toFixed(2)}</td>
@@ -337,7 +339,10 @@
 
                 fetch('/Compra/RegistrarCompraJson', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
                     body: JSON.stringify(payload)
                 })
                 .then(res => res.json())

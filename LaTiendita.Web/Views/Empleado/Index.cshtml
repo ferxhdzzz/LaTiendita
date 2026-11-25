@@ -27,6 +27,7 @@
                     <input asp-for="Nombre" class="form-control-custom" placeholder="Ej. Roberto Gómez" 
                            pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\.'-]+$" title="Solo se permiten letras y espacios" 
                            maxlength="50" minlength="3" required />
+                    <span asp-validation-for="Nombre" style="color: var(--danger); font-size: 0.78rem;"></span>
                 </div>
 
                 <div class="form-group">
@@ -43,12 +44,14 @@
                         <input asp-for="Password" type="password" class="form-control-custom" placeholder="••••••••" 
                                minlength="6" maxlength="30" />
                     }
+                    <span asp-validation-for="Password" style="color: var(--danger); font-size: 0.78rem;"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Correo" style="font-weight: 500; margin-bottom: 6px; display: block;">Correo electrónico *</label>
                     <input asp-for="Correo" type="email" class="form-control-custom" placeholder="roberto@tiendita.com" 
                            maxlength="60" required />
+                    <span asp-validation-for="Correo" style="color: var(--danger); font-size: 0.78rem;"></span>
                 </div>
 
                 <div class="form-group">
@@ -56,6 +59,7 @@
                     <input asp-for="Telefono" type="tel" class="form-control-custom" placeholder="2234-5678" 
                            pattern="^[0-9+ -]{8,15}$" title="Ingrese entre 8 y 15 dígitos numéricos" 
                            maxlength="15" required />
+                    <span asp-validation-for="Telefono" style="color: var(--danger); font-size: 0.78rem;"></span>
                 </div>
 
                 <div class="form-group" style="grid-column: span 2;">
@@ -130,7 +134,9 @@
                                 </form>
 
                                 <button type="button" class="btn-action" style="color: var(--danger); border-color: rgba(168,67,43,0.3);"
-                                        onclick="confirmarEliminacion('form-del-emp-@emp.Id', '@emp.Nombre')">
+                                        data-form="form-del-emp-@emp.Id"
+                                        data-nombre="@emp.Nombre"
+                                        onclick="confirmarEliminacionBtn(this)">
                                     Eliminar
                                 </button>
                             </div>
@@ -142,3 +148,7 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

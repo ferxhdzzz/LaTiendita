@@ -55,7 +55,12 @@
                         <td style="text-align: right;">
                             <div style="display: inline-flex; gap: 6px;">
                                 <button type="button" class="btn-action" 
-                                        onclick="abrirModalEditarProveedor(@p.Id, '@p.Nombre', '@p.Telefono', '@p.Correo', '@p.LineasSuministro')">
+                                        data-id="@p.Id"
+                                        data-nombre="@p.Nombre"
+                                        data-tel="@p.Telefono"
+                                        data-correo="@p.Correo"
+                                        data-lineas="@p.LineasSuministro"
+                                        onclick="abrirModalEditarProveedorBtn(this)">
                                     Editar
                                 </button>
 
@@ -65,7 +70,9 @@
                                 </form>
 
                                 <button type="button" class="btn-action" style="color: var(--danger);" 
-                                        onclick="confirmarEliminacion('form-del-@p.Id', '@p.Nombre')">
+                                        data-form="form-del-@p.Id"
+                                        data-nombre="@p.Nombre"
+                                        onclick="confirmarEliminacionBtn(this)">
                                     Eliminar
                                 </button>
                             </div>
@@ -129,6 +136,16 @@
         document.getElementById('provCorreo').value = '';
         document.getElementById('provLineas').value = '';
         document.getElementById('modalProveedor').style.display = 'flex';
+    }
+
+    function abrirModalEditarProveedorBtn(btn) {
+        abrirModalEditarProveedor(
+            btn.getAttribute('data-id'),
+            btn.getAttribute('data-nombre') || '',
+            btn.getAttribute('data-tel') || '',
+            btn.getAttribute('data-correo') || '',
+            btn.getAttribute('data-lineas') || ''
+        );
     }
 
     function abrirModalEditarProveedor(id, nombre, tel, correo, lineas) {
